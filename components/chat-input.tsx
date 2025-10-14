@@ -1,6 +1,8 @@
 'use client'
 
 import { models } from '@/lib/ai/models'
+import { UIMessageWithMetadata } from '@/lib/types'
+import { UseChatHelpers } from '@ai-sdk/react'
 import { User } from 'better-auth'
 import { ArrowUp, Check, ChevronDown, Paperclip, Square } from 'lucide-react'
 import { useRef } from 'react'
@@ -15,15 +17,20 @@ import { Textarea } from './ui/textarea'
 type ChatInputProps = {
   user: User | undefined
   input: string
-  inputRef: React.RefObject<HTMLTextAreaElement | null>
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  setInput: (input: string) => void
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  status: UseChatHelpers<UIMessageWithMetadata>['status']
+  isStreaming: boolean
+  stop: UseChatHelpers<UIMessageWithMetadata>['stop']
 }
 
-export function ChatInput({ user, input, inputRef, handleInputChange, handleSubmit }: ChatInputProps) {
+export function ChatInput({ user, input, setInput, handleSubmit, status, isStreaming, stop }: ChatInputProps) {
   const { config, updateConfig } = useChatConfig()
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value)
+  }
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const isStreaming = false
 
   return (
     <form
@@ -88,7 +95,7 @@ export function ChatInput({ user, input, inputRef, handleInputChange, handleSubm
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="chatInput" className="rounded-lg" size="sm">
+              <Button variant="chatInput" className="rounded-lg" size="sm" suppressHydrationWarning>
                 {config.selectedModel}
                 <ChevronDown className="text-muted-foreground" />
               </Button>
@@ -112,7 +119,7 @@ export function ChatInput({ user, input, inputRef, handleInputChange, handleSubm
           </DropdownMenu>
           <Button
             className="rounded-full"
-            // disabled={status === 'ready' && (!input || isUploading)}
+            disabled={status === 'ready' && !input.trim()}
             onClick={() => {
               if (isStreaming) {
                 stop()
