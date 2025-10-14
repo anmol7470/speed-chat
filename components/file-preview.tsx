@@ -44,10 +44,9 @@ function FilePreview({ filesToSend, filesToUpload, isUploading, removeFile }: Fi
                 <p className="truncate text-[13px] font-medium">{file.name}</p>
               </div>
             </div>
-
             {!(isUploading && !isFileUploaded) && (
               <Button
-                size="icon"
+                size="icon-sm"
                 variant="ghost"
                 className="text-muted-foreground/80 hover:text-foreground -me-2 size-8 hover:bg-transparent"
                 onClick={(e) => {
