@@ -2,7 +2,7 @@
 
 import { api } from '@/convex/_generated/api'
 import { models } from '@/lib/ai/models'
-import type { UIMessageWithMetadata } from '@/lib/types'
+import type { Model, UIMessageWithMetadata } from '@/lib/types'
 import { useQueryWithStatus } from '@/lib/utils'
 import { useChat, UseChatHelpers } from '@ai-sdk/react'
 import { createIdGenerator, DefaultChatTransport, FileUIPart } from 'ai'
@@ -22,13 +22,16 @@ type ChatContextType = {
   messages: UIMessageWithMetadata[]
   sendMessage: UseChatHelpers<UIMessageWithMetadata>['sendMessage']
   status: UseChatHelpers<UIMessageWithMetadata>['status']
-  setMessages: UseChatHelpers<UIMessageWithMetadata>['setMessages']
   stop: UseChatHelpers<UIMessageWithMetadata>['stop']
   regenerate: UseChatHelpers<UIMessageWithMetadata>['regenerate']
   isLoadingMessages: boolean
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   error: UseChatHelpers<UIMessageWithMetadata>['error']
   clearError: UseChatHelpers<UIMessageWithMetadata>['clearError']
+  buildBodyAndHeaders: () => {
+    body: { chatId: string; model: Model | undefined; isNewChat: boolean }
+    headers: { 'x-api-key': string }
+  }
 }
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -160,13 +163,13 @@ export const ChatProvider = ({
         messages,
         sendMessage,
         status,
-        setMessages,
         stop,
         regenerate,
         isLoadingMessages: isPending && !!paramsChatId && !!user,
         handleSubmit,
         error,
         clearError,
+        buildBodyAndHeaders,
       }}
     >
       {children}

@@ -23,7 +23,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
     setInput(e.target.value)
   }
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { filesToUpload, handleFileChange, removeFile, isUploading } = useAttachments({
+  const { filesToUpload, setFilesToUpload, handleFileChange, removeFile, isUploading } = useAttachments({
     filesToSend,
     setFilesToSend,
     user,
@@ -35,6 +35,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
       onSubmit={(e) => {
         e.preventDefault()
         handleSubmit(e)
+        setFilesToUpload([])
       }}
     >
       {filesToUpload.length > 0 && (

@@ -1,13 +1,18 @@
+import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { UIMessageWithMetadata } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { useMutation } from 'convex/react'
 import { Check, Copy, ImageIcon, PaperclipIcon, Pencil, XIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { toast } from 'react-hot-toast'
+import { useChatContext } from './chat-provider'
 import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 
 export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
   const { isCopied, copyToClipboard } = useCopyToClipboard()
+  const { sendMessage, buildBodyAndHeaders, messages: allMessages } = useChatContext()
   const [isEditing, setIsEditing] = useState(false)
   const [editedParts, setEditedParts] = useState(message.parts)
   const [originalParts] = useState(message.parts)
@@ -19,6 +24,9 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
     .filter((part) => part.type === 'text')
     .map((part) => part.text)
     .join('')
+
+  const deleteMessages = useMutation(api.delete.deleteMessages)
+  const deleteFiles = useMutation(api.storage.deleteFiles)
 
   const handleEditClick = () => {
     setIsEditing(true)
@@ -45,8 +53,63 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
     setEditedParts((prev) => prev.map((part) => (part.type === 'text' ? { ...part, text: newText } : part)))
   }
 
-  const handleSend = () => {
-    // TODO: Implement send functionality
+  const handleSend = async () => {
+    const editedText = editedParts
+      .filter((part) => part.type === 'text')
+      .map((part) => part.text)
+      .join('')
+
+    const editedFiles = editedParts.filter((part) => part.type === 'file')
+
+    if (!editedText && editedFiles.length === 0) {
+      toast.error('Message is empty')
+      return
+    }
+
+    if (editedParts === originalParts) {
+      toast.error('No changes made')
+      return
+    }
+
+    const editingMessageIndex = allMessages.findIndex((m) => m.id === message.id)
+
+    // Find files that were removed (in original but not in edited)
+    const originalFiles = originalParts.filter((part) => part.type === 'file')
+    const editedFileUrls = editedFiles.map((file) => file.url)
+    const removedFiles = originalFiles.filter((file) => !editedFileUrls.includes(file.url))
+
+    // Delete only messages BELOW the current one from DB (not including current message)
+    const messagesToDelete = allMessages.slice(editingMessageIndex + 1)
+
+    try {
+      if (messagesToDelete.length > 0) {
+        deleteMessages({ messageIdsToDelete: messagesToDelete.map((m) => m.id) })
+      }
+
+      // Delete removed files from storage
+      if (removedFiles.length > 0) {
+        deleteFiles({ fileUrls: removedFiles.map((file) => file.url) })
+      }
+    } catch {
+      toast.error('Failed to delete messages or files')
+      return
+    }
+
+    const { body, headers } = buildBodyAndHeaders()
+
+    sendMessage(
+      {
+        messageId: message.id,
+        text: editedText,
+        ...(editedFiles.length > 0 && { files: editedFiles }),
+      },
+      {
+        body,
+        headers,
+      }
+    )
+
+    setIsEditing(false)
   }
 
   return (
