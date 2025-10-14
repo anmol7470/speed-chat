@@ -6,7 +6,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import { cookies } from 'next/headers'
 import { getSession } from '@/lib/auth/get-session'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from 'react-hot-toast'
 import { ChatConfigProvider } from '@/components/chat-config-provider'
 import { ConvexClientProvider } from '@/components/convex-client-provider'
 
@@ -44,7 +44,7 @@ export default async function RootLayout({
               <SidebarInset>
                 <ChatConfigProvider>{children}</ChatConfigProvider>
               </SidebarInset>
-              <Toaster richColors />
+              <Toaster position="top-center" reverseOrder={false} />
             </ThemeProvider>
           </SidebarProvider>
         </ConvexClientProvider>

@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarGroupLabel,
 } from '@/components/ui/sidebar'
 import Link from 'next/link'
 import { PenBox, Search, MessageSquare, LogOut, LogIn, Moon, Sun } from 'lucide-react'
@@ -17,21 +18,42 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Button, buttonVariants } from './ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { authClient } from '@/lib/auth/client'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { usePathname, useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 import { useTheme } from 'next-themes'
 import { VariantProps } from 'class-variance-authority'
 import { useQueryWithStatus } from '@/lib/utils'
 import { api } from '@/convex/_generated/api'
+import { useEffect, useMemo } from 'react'
+import { SidebarChatItem } from './sidebar-chat-item'
 
 export function AppSidebar({ user }: { user: User | undefined }) {
+  const pathname = usePathname()
+  const currentChatId = pathname.split('/chat/')[1]
   const { theme, setTheme } = useTheme()
   const router = useRouter()
 
-  const { status, data, error, isSuccess, isPending, isError } = useQueryWithStatus(
-    api.chat.getAllChats,
-    user?.id ? { userId: user.id } : 'skip'
-  )
+  const {
+    data: chats,
+    error,
+    isSuccess,
+    isPending,
+    isError,
+  } = useQueryWithStatus(api.chat.getAllChats, user?.id ? { userId: user.id } : 'skip')
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(error.message)
+    }
+  }, [isError, error])
+
+  const pinnedChats = useMemo(() => {
+    return chats?.filter((chat) => chat.isPinned)
+  }, [chats])
+
+  const unpinnedChats = useMemo(() => {
+    return chats?.filter((chat) => !chat.isPinned)
+  }, [chats])
 
   return (
     <Sidebar variant="inset">
@@ -62,7 +84,34 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarGroup>
       </SidebarHeader>
 
-      <SidebarContent className="flex-1"></SidebarContent>
+      <SidebarContent className="flex-1">
+        {!user ? (
+          <div className="mx-auto my-auto flex text-muted-foreground text-sm">Please login to view your chats.</div>
+        ) : isPending || (isSuccess && chats?.length === 0) ? null : (
+          <>
+            {pinnedChats && pinnedChats.length > 0 && (
+              <>
+                <SidebarGroupLabel>Pinned</SidebarGroupLabel>
+                <SidebarMenu>
+                  {pinnedChats.map((chat) => (
+                    <SidebarChatItem chat={chat} currentChatId={currentChatId} key={chat.id} />
+                  ))}
+                </SidebarMenu>
+              </>
+            )}
+            {unpinnedChats && unpinnedChats.length > 0 && (
+              <>
+                <SidebarGroupLabel>Chats</SidebarGroupLabel>
+                <SidebarMenu>
+                  {unpinnedChats.map((chat) => (
+                    <SidebarChatItem chat={chat} currentChatId={currentChatId} key={chat.id} />
+                  ))}
+                </SidebarMenu>
+              </>
+            )}
+          </>
+        )}
+      </SidebarContent>
 
       <SidebarFooter>
         {user ? (

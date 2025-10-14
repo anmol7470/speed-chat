@@ -1,5 +1,7 @@
 import * as z from 'zod'
 import type { UIMessage } from 'ai'
+import { FunctionReturnType } from 'convex/server'
+import { api } from '@/convex/_generated/api'
 
 export type ModelProvider = 'openai' | 'anthropic' | 'google'
 
@@ -34,3 +36,5 @@ export type MessageMetadata = {
 }
 
 export type UIMessageWithMetadata = UIMessage<MessageMetadata>
+
+export type Chat = FunctionReturnType<typeof api.chat.getAllChats>[number]

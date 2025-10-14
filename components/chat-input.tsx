@@ -12,7 +12,7 @@ import { useChatConfig } from './chat-config-provider'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { useRef } from 'react'
-import { toast } from 'sonner'
+import { toast } from 'react-hot-toast'
 
 export function ChatInput({ user }: { user: User | undefined }) {
   const { config, updateConfig } = useChatConfig()
