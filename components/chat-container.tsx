@@ -11,8 +11,10 @@ import { User } from 'better-auth'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { ApiKeyDialog } from './api-key-dialog'
 import { ChatInput } from './chat-input'
 import { Header } from './header'
+import { Button } from './ui/button'
 
 export function ChatContainerParent({ user, paramsChatId }: { user: User | undefined; paramsChatId: string }) {
   const router = useRouter()
@@ -58,6 +60,7 @@ function ChatContainer({
   isNewChat: boolean
 }) {
   const { chatId, config } = useChatConfig()
+  const [openApiKeyDialog, setOpenApiKeyDialog] = useState(false)
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -108,10 +111,24 @@ function ChatContainer({
       return
     }
 
-    // if (!config.apiKey) {
-    //   toast.error('Please set an API key')
-    //   return
-    // }
+    if (!config.apiKey) {
+      toast.error((t) => (
+        <div className="flex items-center gap-2">
+          <p>Please set an API key</p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setOpenApiKeyDialog(true)
+              toast.dismiss(t.id)
+            }}
+          >
+            Set API Key
+          </Button>
+        </div>
+      ))
+      return
+    }
 
     if (isNewChat) {
       window.history.replaceState({}, '', `/chat/${chatId}`)
@@ -158,6 +175,7 @@ function ChatContainer({
           ))}
         </>
       )}
+      <ApiKeyDialog open={openApiKeyDialog} onOpenChange={setOpenApiKeyDialog} />
     </div>
   )
 }

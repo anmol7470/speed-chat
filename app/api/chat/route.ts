@@ -22,14 +22,12 @@ export async function POST(request: Request) {
 
   const { messages, chatId, model, isNewChat } = parsedBody.data
 
-  // const headers = request.headers
-  // const apiKey = headers.get('x-ai-gateway-api-key')
+  const headers = request.headers
+  const apiKey = headers.get('x-api-key')
 
-  // if (!apiKey) {
-  //   return new Response('Missing API key', { status: 400 })
-  // }
-
-  const apiKey = process.env.OPENROUTER_API_KEY!
+  if (!apiKey) {
+    return new Response('Missing API key', { status: 400 })
+  }
 
   const shouldUseReasoning = model.reasoningModel === true
 

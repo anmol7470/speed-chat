@@ -16,12 +16,13 @@ import { authClient } from '@/lib/auth/client'
 import { useQueryWithStatus } from '@/lib/utils'
 import { User } from 'better-auth'
 import { VariantProps } from 'class-variance-authority'
-import { LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lucide-react'
+import { Key, LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { ApiKeyDialog } from './api-key-dialog'
 import { SidebarChatItem } from './sidebar-chat-item'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button, buttonVariants } from './ui/button'
@@ -30,6 +31,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export function AppSidebar({ user }: { user: User | undefined }) {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
+  const [openApiKeyDialog, setOpenApiKeyDialog] = useState(false)
 
   const {
     data: chats,
@@ -143,6 +145,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 <LogOut />
                 Log out
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpenApiKeyDialog(true)}>
+                <Key />
+                Configure API Key
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                 <Sun className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
                 <Moon className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
@@ -154,6 +160,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
           <LoginButton className="flex w-full" variant="outline" size="lg" />
         )}
       </SidebarFooter>
+      <ApiKeyDialog open={openApiKeyDialog} onOpenChange={setOpenApiKeyDialog} />
     </Sidebar>
   )
 }
