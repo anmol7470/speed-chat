@@ -1,0 +1,73 @@
+'use client'
+
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
+import { models } from '@/lib/ai/models'
+
+type ChatConfigContextType = {
+  config: ChatConfig
+  updateConfig: (updates: Partial<ChatConfig>) => void
+}
+
+const ChatConfigContext = createContext<ChatConfigContextType | undefined>(undefined)
+
+const STORAGE_KEY = 'chat-config'
+
+const getDefaultConfig = (): ChatConfig => ({
+  selectedModel: models.find((m) => m.default)?.name || 'GPT-5',
+  apiKey: '',
+  shouldWebSearch: false,
+})
+
+export function ChatConfigProvider({ children }: { children: ReactNode }) {
+  const [config, setConfigState] = useState<ChatConfig>(getDefaultConfig())
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        const validated = ChatConfigSchema.parse(parsed)
+        setConfigState(validated)
+      } else {
+        // No stored config, use default
+        setConfigState(getDefaultConfig())
+      }
+    } catch (error) {
+      console.error('Failed to load chat config from localStorage:', error)
+      // Clear invalid data and use default
+      localStorage.removeItem(STORAGE_KEY)
+      setConfigState(getDefaultConfig())
+    }
+  }, [])
+
+  // Save to localStorage whenever config changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    } catch (error) {
+      console.error('Failed to save chat config to localStorage:', error)
+    }
+  }, [config])
+
+  const updateConfig = (updates: Partial<ChatConfig>) => {
+    try {
+      const merged = { ...config, ...updates }
+      const validated = ChatConfigSchema.parse(merged)
+      setConfigState(validated)
+    } catch (error) {
+      console.error('Invalid chat config update:', error)
+    }
+  }
+
+  return <ChatConfigContext.Provider value={{ config, updateConfig }}>{children}</ChatConfigContext.Provider>
+}
+
+export function useChatConfig() {
+  const context = useContext(ChatConfigContext)
+  if (context === undefined) {
+    throw new Error('useChatConfig must be used within a ChatConfigProvider')
+  }
+  return context
+}
