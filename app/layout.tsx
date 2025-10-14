@@ -1,14 +1,14 @@
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
-import { cookies } from 'next/headers'
-import { getSession } from '@/lib/auth/get-session'
-import { Toaster } from 'react-hot-toast'
 import { ChatConfigProvider } from '@/components/chat-config-provider'
 import { ConvexClientProvider } from '@/components/convex-client-provider'
+import { ThemeProvider } from '@/components/theme-provider'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { getSession } from '@/lib/auth/get-session'
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+import { cookies } from 'next/headers'
+import { Toaster } from 'react-hot-toast'
+import './globals.css'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -36,7 +36,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-screen w-screen`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen w-screen antialiased`}>
         <ConvexClientProvider>
           <SidebarProvider defaultOpen={defaultOpen}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>

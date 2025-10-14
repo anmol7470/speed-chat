@@ -1,31 +1,31 @@
 'use client'
 
-import { User } from 'better-auth'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
-  SidebarGroupLabel,
 } from '@/components/ui/sidebar'
-import Link from 'next/link'
-import { PenBox, Search, MessageSquare, LogOut, LogIn, Moon, Sun } from 'lucide-react'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu'
-import { Button, buttonVariants } from './ui/button'
-import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
-import { authClient } from '@/lib/auth/client'
-import { usePathname, useRouter } from 'next/navigation'
-import { toast } from 'react-hot-toast'
-import { useTheme } from 'next-themes'
-import { VariantProps } from 'class-variance-authority'
-import { useQueryWithStatus } from '@/lib/utils'
 import { api } from '@/convex/_generated/api'
+import { authClient } from '@/lib/auth/client'
+import { useQueryWithStatus } from '@/lib/utils'
+import { User } from 'better-auth'
+import { VariantProps } from 'class-variance-authority'
+import { LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
+import { toast } from 'react-hot-toast'
 import { SidebarChatItem } from './sidebar-chat-item'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { Button, buttonVariants } from './ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const pathname = usePathname()
@@ -59,10 +59,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
     <Sidebar variant="inset">
       <SidebarHeader className="flex flex-col items-center">
         <Link className="flex items-center gap-2" href="/">
-          <div className="size-8 bg-blue-300 rounded-lg flex items-center justify-center">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-blue-300">
             <MessageSquare className="size-4.5 text-white" />
           </div>
-          <span className="font-medium text-lg">SpeedChat</span>
+          <span className="text-lg font-medium">SpeedChat</span>
         </Link>
         <SidebarGroup className="px-0 pb-0">
           <SidebarMenu>
@@ -86,7 +86,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
 
       <SidebarContent className="flex-1">
         {!user ? (
-          <div className="mx-auto my-auto flex text-muted-foreground text-sm">Please login to view your chats.</div>
+          <div className="text-muted-foreground mx-auto my-auto flex text-sm">Please login to view your chats.</div>
         ) : isPending || (isSuccess && chats?.length === 0) ? null : (
           <>
             {pinnedChats && pinnedChats.length > 0 && (
@@ -122,7 +122,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   <AvatarImage src={user.image ?? ''} />
                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <span className="truncate font-normal text-sm">{user.name}</span>
+                <span className="truncate text-sm font-normal">{user.name}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

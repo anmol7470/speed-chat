@@ -1,16 +1,19 @@
-import type { Chat } from '@/lib/types'
-import { SidebarMenuItem, SidebarMenuButton, SidebarMenuAction } from '@/components/ui/sidebar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import Link from 'next/link'
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
-import { GitBranch, MoreHorizontal, PinOff, Pin, Pencil, Trash2 } from 'lucide-react'
-import { Loader2 } from 'lucide-react'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
-import { useRef, useState } from 'react'
+import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useIsMobile } from '@/hooks/use-mobile'
+import type { Chat } from '@/lib/types'
+import { GitBranch, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { toast } from 'react-hot-toast'
+import { useRef, useState } from 'react'
 
 export function SidebarChatItem({ chat, currentChatId }: { chat: Chat; currentChatId: string }) {
   const isMobile = useIsMobile()
@@ -33,7 +36,7 @@ export function SidebarChatItem({ chat, currentChatId }: { chat: Chat; currentCh
       <SidebarMenuButton asChild={!(isRenamingChat && chat.id === renamingChatId)} isActive={currentChatId === chat.id}>
         {isRenamingChat && chat.id === renamingChatId ? (
           <Input
-            className="!bg-transparent w-full border-none px-0 shadow-none focus-visible:ring-0"
+            className="w-full border-none !bg-transparent px-0 shadow-none focus-visible:ring-0"
             onBlur={clearInput}
             onChange={(e) => setNewChatTitle(e.target.value)}
             onKeyDown={(e) => {

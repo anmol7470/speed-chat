@@ -1,18 +1,16 @@
 'use client'
 
-import { Textarea } from './ui/textarea'
-import { Button, buttonVariants } from './ui/button'
-import { User } from 'better-auth'
-import { Paperclip } from 'lucide-react'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu'
-import { ChevronDown, Check } from 'lucide-react'
-import { Square, ArrowUp } from 'lucide-react'
 import { models } from '@/lib/ai/models'
-import { useChatConfig } from './chat-config-provider'
-import { Switch } from './ui/switch'
-import { Label } from './ui/label'
+import { User } from 'better-auth'
+import { ArrowUp, Check, ChevronDown, Paperclip, Square } from 'lucide-react'
 import { useRef } from 'react'
 import { toast } from 'react-hot-toast'
+import { useChatConfig } from './chat-config-provider'
+import { Button, buttonVariants } from './ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { Label } from './ui/label'
+import { Switch } from './ui/switch'
+import { Textarea } from './ui/textarea'
 
 export function ChatInput({ user }: { user: User | undefined }) {
   const { config, updateConfig } = useChatConfig()
@@ -29,7 +27,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
     >
       <Textarea
         autoFocus
-        className="!text-[15px] !bg-transparent max-h-[200px] min-h-[80px] w-full resize-none border-0 px-1 shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+        className="placeholder:text-muted-foreground max-h-[200px] min-h-[80px] w-full resize-none border-0 !bg-transparent px-1 !text-[15px] shadow-none focus-visible:ring-0"
         onChange={() => {}}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {

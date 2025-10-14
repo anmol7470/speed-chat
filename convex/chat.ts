@@ -1,11 +1,10 @@
-import { action, internalMutation, mutation, query } from './_generated/server'
-import { internal } from './_generated/api'
-import { v } from 'convex/values'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
-import { generateText } from 'ai'
-import { convertToModelMessages } from 'ai'
-import type { UIMessageWithMetadata } from '../lib/types'
+import { convertToModelMessages, generateText } from 'ai'
+import { v } from 'convex/values'
 import { titleGenPrompt } from '../lib/ai/prompts'
+import type { UIMessageWithMetadata } from '../lib/types'
+import { internal } from './_generated/api'
+import { action, internalMutation, mutation, query } from './_generated/server'
 
 export const getAllChats = query({
   args: {

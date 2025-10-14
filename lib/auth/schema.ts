@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
-import { Pool } from 'pg'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { Pool } from 'pg'
 
 config({ path: '.env.local' })
 

@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
 import { models } from '@/lib/ai/models'
+import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 
 type ChatConfigContextType = {
   config: ChatConfig
