@@ -12,7 +12,15 @@ import { Label } from './ui/label'
 import { Switch } from './ui/switch'
 import { Textarea } from './ui/textarea'
 
-export function ChatInput({ user }: { user: User | undefined }) {
+type ChatInputProps = {
+  user: User | undefined
+  input: string
+  inputRef: React.RefObject<HTMLTextAreaElement | null>
+  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+}
+
+export function ChatInput({ user, input, inputRef, handleInputChange, handleSubmit }: ChatInputProps) {
   const { config, updateConfig } = useChatConfig()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isStreaming = false
@@ -22,13 +30,13 @@ export function ChatInput({ user }: { user: User | undefined }) {
       className="mx-auto w-full max-w-3xl shrink-0 rounded-xl bg-[#F5F5F5] p-2 px-4 sm:px-2 dark:bg-[#262626]"
       onSubmit={(e) => {
         e.preventDefault()
-        e.currentTarget.form?.requestSubmit()
+        handleSubmit(e)
       }}
     >
       <Textarea
         autoFocus
         className="placeholder:text-muted-foreground max-h-[200px] min-h-[80px] w-full resize-none border-0 !bg-transparent px-1 !text-[15px] shadow-none focus-visible:ring-0"
-        onChange={() => {}}
+        onChange={handleInputChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
@@ -36,8 +44,8 @@ export function ChatInput({ user }: { user: User | undefined }) {
           }
         }}
         placeholder="Send a message"
-        // ref={inputRef}
-        // value={input}
+        ref={inputRef}
+        value={input}
       />
       <div className="flex justify-between px-1 pt-2">
         <div className="flex items-center gap-2">
@@ -61,7 +69,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
             accept="image/*"
             className="hidden"
             multiple
-            //   onChange={handleFileChange}
+            // onChange={handleFileChange}
             ref={fileInputRef}
             type="file"
           />

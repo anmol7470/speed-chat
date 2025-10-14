@@ -1,9 +1,10 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, generateText } from 'ai'
+import { FunctionReturnType } from 'convex/server'
 import { v } from 'convex/values'
 import { titleGenPrompt } from '../lib/ai/prompts'
 import type { UIMessageWithMetadata } from '../lib/types'
-import { internal } from './_generated/api'
+import { api, internal } from './_generated/api'
 import { action, internalMutation, mutation, query } from './_generated/server'
 
 export const getAllChats = query({
@@ -18,6 +19,8 @@ export const getAllChats = query({
       .collect()
   },
 })
+
+export type Chat = FunctionReturnType<typeof api.chat.getAllChats>[number]
 
 export const getChatMessages = query({
   args: {
@@ -34,11 +37,20 @@ export const getChatMessages = query({
       throw new Error('Chat not found')
     }
 
-    return await ctx.db
+    const messages = await ctx.db
       .query('messages')
       .withIndex('by_chat_id', (q) => q.eq('chatId', chat._id))
       .order('asc')
       .collect()
+
+    const uiMessages = messages.map((message) => ({
+      id: message.id,
+      role: message.role,
+      metadata: message.metadata,
+      parts: message.parts,
+    })) as UIMessageWithMetadata[]
+
+    return uiMessages
   },
 })
 
@@ -105,5 +117,47 @@ export const updateChatTitle = internalMutation({
     }
 
     await ctx.db.patch(chat._id, { title: args.title })
+  },
+})
+
+export const upsertMessage = mutation({
+  args: {
+    chatId: v.string(),
+    userId: v.string(),
+    message: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const message = args.message as UIMessageWithMetadata
+
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', args.userId))
+      .first()
+
+    if (!chat) {
+      throw new Error('Chat not found')
+    }
+
+    const existingMessage = await ctx.db
+      .query('messages')
+      .withIndex('by_message_id', (q) => q.eq('id', message.id))
+      .first()
+
+    if (existingMessage) {
+      await ctx.db.patch(existingMessage._id, {
+        ...message,
+        text_part: message.parts.map((part) => (part.type === 'text' ? part.text : '')).join(' '),
+      })
+    } else {
+      await ctx.db.insert('messages', {
+        ...message,
+        text_part: message.parts.map((part) => (part.type === 'text' ? part.text : '')).join(' '),
+        chatId: chat._id,
+      })
+    }
+
+    await ctx.db.patch(chat._id, {
+      updatedAt: Date.now(),
+    })
   },
 })

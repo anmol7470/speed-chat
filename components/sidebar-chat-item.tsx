@@ -1,3 +1,4 @@
+import { useChatConfig } from '@/components/chat-config-provider'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,16 +9,17 @@ import {
 import { Input } from '@/components/ui/input'
 import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { Chat } from '@/convex/chat'
 import { useIsMobile } from '@/hooks/use-mobile'
-import type { Chat } from '@/lib/types'
 import { GitBranch, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 
-export function SidebarChatItem({ chat, currentChatId }: { chat: Chat; currentChatId: string }) {
+export function SidebarChatItem({ chat }: { chat: Chat }) {
   const isMobile = useIsMobile()
   const router = useRouter()
+  const { chatId: currentChatId } = useChatConfig()
   const [isRenamingChat, setIsRenamingChat] = useState(false)
   const [renamingChatId, setRenamingChatId] = useState<string | null>(null)
   const [newChatTitle, setNewChatTitle] = useState('')

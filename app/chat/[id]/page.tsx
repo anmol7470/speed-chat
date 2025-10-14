@@ -1,3 +1,4 @@
+import { ChatContainerParent } from '@/components/chat-container'
 import { getSession } from '@/lib/auth/get-session'
 import { redirect } from 'next/navigation'
 
@@ -9,5 +10,5 @@ export default async function ChatPage({ params }: { params: Promise<{ id: strin
     redirect('/')
   }
 
-  return <div>ChatPage {id}</div>
+  return <ChatContainerParent user={session.user} paramsChatId={id} />
 }

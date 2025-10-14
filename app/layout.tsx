@@ -38,15 +38,15 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen w-screen antialiased`}>
         <ConvexClientProvider>
-          <SidebarProvider defaultOpen={defaultOpen}>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-              <AppSidebar user={session?.user} />
-              <SidebarInset>
-                <ChatConfigProvider>{children}</ChatConfigProvider>
-              </SidebarInset>
-              <Toaster position="top-center" reverseOrder={false} />
-            </ThemeProvider>
-          </SidebarProvider>
+          <ChatConfigProvider>
+            <SidebarProvider defaultOpen={defaultOpen}>
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                <AppSidebar user={session?.user} />
+                <SidebarInset>{children}</SidebarInset>
+                <Toaster position="top-center" reverseOrder={false} />
+              </ThemeProvider>
+            </SidebarProvider>
+          </ChatConfigProvider>
         </ConvexClientProvider>
       </body>
     </html>

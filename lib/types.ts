@@ -1,6 +1,4 @@
-import { api } from '@/convex/_generated/api'
 import type { UIMessage } from 'ai'
-import { FunctionReturnType } from 'convex/server'
 import * as z from 'zod'
 
 export type ModelProvider = 'openai' | 'anthropic' | 'google'
@@ -37,4 +35,11 @@ export type MessageMetadata = {
 
 export type UIMessageWithMetadata = UIMessage<MessageMetadata>
 
-export type Chat = FunctionReturnType<typeof api.chat.getAllChats>[number]
+export const ChatRequestSchema = z.object({
+  messages: z.array(z.custom<UIMessageWithMetadata>()),
+  chatId: z.string(),
+  model: z.custom<Model>(),
+  isNewChat: z.boolean(),
+})
+
+export type ChatRequest = z.infer<typeof ChatRequestSchema>

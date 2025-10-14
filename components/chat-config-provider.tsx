@@ -2,11 +2,16 @@
 
 import { models } from '@/lib/ai/models'
 import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
+import { customAlphabet } from 'nanoid'
+import { usePathname } from 'next/navigation'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
+
+const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 21)
 
 type ChatConfigContextType = {
   config: ChatConfig
   updateConfig: (updates: Partial<ChatConfig>) => void
+  chatId: string
 }
 
 const ChatConfigContext = createContext<ChatConfigContextType | undefined>(undefined)
@@ -61,7 +66,22 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  return <ChatConfigContext.Provider value={{ config, updateConfig }}>{children}</ChatConfigContext.Provider>
+  const pathname = usePathname()
+  const urlChatId = pathname.split('/chat/')[1] ?? ''
+  const [chatId, setChatId] = useState<string>(() => urlChatId || nanoid())
+
+  useEffect(() => {
+    if (urlChatId) {
+      // Navigating to an existing chat
+      setChatId(urlChatId)
+    } else {
+      // Navigating to home
+      const newId = nanoid()
+      setChatId(newId)
+    }
+  }, [urlChatId])
+
+  return <ChatConfigContext.Provider value={{ config, updateConfig, chatId }}>{children}</ChatConfigContext.Provider>
 }
 
 export function useChatConfig() {
