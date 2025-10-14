@@ -22,6 +22,8 @@ export async function POST(request: Request) {
 
   const { messages, chatId, model, isNewChat } = parsedBody.data
 
+  console.log(parsedBody.data)
+
   const headers = request.headers
   const apiKey = headers.get('x-api-key')
 

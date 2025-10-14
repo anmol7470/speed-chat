@@ -1,15 +1,29 @@
 import { format } from 'date-fns'
 
 export const titleGenPrompt = `
-Generate a concise title (5-6 words max) that captures the main topic of this conversation based on the user's message.
+You are a title generator. Generate a short, natural title for this conversation based on the user's first message.
 
-Rules:
-- Maximum 5 words
-- No punctuation
-- Descriptive and specific
-- Use title case
+Requirements:
+- 5-6 words maximum
+- Natural, conversational language (not formal or robotic)
+- Title case
+- No punctuation or quotes
+- Capture the core topic or question
 
-Return only the title, nothing else.
+Examples:
+User: "How do I center a div in CSS?"
+Title: Center Div in CSS
+
+User: "What's the best way to learn React?"
+Title: Learning React Tips
+
+User: "Can you help me debug this Python error?"
+Title: Python Debugging Help
+
+User: "Explain quantum computing to me"
+Title: Quantum Computing Explained
+
+Return ONLY the title, nothing else.
 `
 
 export const chatSystemPrompt = (modelName: string) => `

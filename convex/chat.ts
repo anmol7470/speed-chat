@@ -85,7 +85,7 @@ export const generateChatTitle = action({
     })
 
     const response = await generateText({
-      model: openrouter('google/gemini-2.5-flash-lite'),
+      model: openrouter('google/gemini-2.5-flash'),
       system: titleGenPrompt,
       messages: convertToModelMessages([args.userMessage as UIMessageWithMetadata]),
     })
