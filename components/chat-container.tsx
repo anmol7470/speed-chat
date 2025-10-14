@@ -6,7 +6,7 @@ import { models } from '@/lib/ai/models'
 import { UIMessageWithMetadata } from '@/lib/types'
 import { useQueryWithStatus } from '@/lib/utils'
 import { useChat } from '@ai-sdk/react'
-import { createIdGenerator, DefaultChatTransport } from 'ai'
+import { createIdGenerator, DefaultChatTransport, FileUIPart } from 'ai'
 import { User } from 'better-auth'
 import { ArrowDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -24,6 +24,7 @@ export function ChatContainer({ user, paramsChatId }: { user: User | undefined; 
   const { chatId, config } = useChatConfig()
   const [openApiKeyDialog, setOpenApiKeyDialog] = useState(false)
   const [input, setInput] = useState('')
+  const [filesToSend, setFilesToSend] = useState<FileUIPart[]>([])
 
   const {
     data: initialMessages,
@@ -114,6 +115,7 @@ export function ChatContainer({ user, paramsChatId }: { user: User | undefined; 
     sendMessage(
       {
         text: input,
+        files: filesToSend,
       },
       {
         body,
@@ -122,6 +124,7 @@ export function ChatContainer({ user, paramsChatId }: { user: User | undefined; 
     )
 
     setInput('')
+    setFilesToSend([])
   }
 
   const isLoadingMessages = isPending && paramsChatId && user
@@ -143,6 +146,8 @@ export function ChatContainer({ user, paramsChatId }: { user: User | undefined; 
             isStreaming={isStreaming}
             status={status}
             stop={stop}
+            filesToSend={filesToSend}
+            setFilesToSend={setFilesToSend}
           />
         </div>
       ) : (
@@ -164,6 +169,8 @@ export function ChatContainer({ user, paramsChatId }: { user: User | undefined; 
               isStreaming={isStreaming}
               status={status}
               stop={stop}
+              filesToSend={filesToSend}
+              setFilesToSend={setFilesToSend}
             />
           </div>
         </div>

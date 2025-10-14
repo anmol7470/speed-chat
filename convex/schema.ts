@@ -20,12 +20,6 @@ const schema = defineSchema({
       filterFields: ['userId'],
     }),
 
-  streams: defineTable({
-    id: v.string(),
-    chatId: v.id('chats'),
-    userId: v.string(),
-  }).index('by_chat_id', ['chatId']),
-
   messages: defineTable({
     id: v.string(),
     chatId: v.id('chats'),
@@ -48,6 +42,20 @@ const schema = defineSchema({
       searchField: 'text_part',
       filterFields: ['chatId'],
     }),
+
+  streams: defineTable({
+    id: v.string(),
+    chatId: v.id('chats'),
+    userId: v.string(),
+  }).index('by_chat_id', ['chatId']),
+
+  attachments: defineTable({
+    userId: v.string(),
+    id: v.id('_storage'),
+    url: v.string(),
+  })
+    .index('by_url', ['url'])
+    .index('by_user_id', ['userId']),
 })
 
 export default schema

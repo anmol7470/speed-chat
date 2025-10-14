@@ -1,13 +1,16 @@
 'use client'
 
+import { useAttachments } from '@/hooks/use-attachments'
 import { models } from '@/lib/ai/models'
 import { UIMessageWithMetadata } from '@/lib/types'
 import { UseChatHelpers } from '@ai-sdk/react'
+import { FileUIPart } from 'ai'
 import { User } from 'better-auth'
 import { ArrowUp, Check, ChevronDown, Paperclip, Square } from 'lucide-react'
 import { useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
+import { MemoizedFilePreview } from './file-preview'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Label } from './ui/label'
@@ -22,15 +25,32 @@ type ChatInputProps = {
   status: UseChatHelpers<UIMessageWithMetadata>['status']
   isStreaming: boolean
   stop: UseChatHelpers<UIMessageWithMetadata>['stop']
+  filesToSend: FileUIPart[]
+  setFilesToSend: React.Dispatch<React.SetStateAction<FileUIPart[]>>
 }
 
-export function ChatInput({ user, input, setInput, handleSubmit, status, isStreaming, stop }: ChatInputProps) {
+export function ChatInput({
+  user,
+  input,
+  setInput,
+  handleSubmit,
+  status,
+  isStreaming,
+  stop,
+  filesToSend,
+  setFilesToSend,
+}: ChatInputProps) {
   const { config, updateConfig } = useChatConfig()
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value)
   }
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { filesToUpload, handleFileChange, removeFile, isUploading } = useAttachments({
+    filesToSend,
+    setFilesToSend,
+    user,
+  })
 
   return (
     <form
@@ -40,6 +60,14 @@ export function ChatInput({ user, input, setInput, handleSubmit, status, isStrea
         handleSubmit(e)
       }}
     >
+      {filesToUpload.length > 0 && (
+        <MemoizedFilePreview
+          filesToSend={filesToSend}
+          filesToUpload={filesToUpload}
+          isUploading={isUploading}
+          removeFile={removeFile}
+        />
+      )}
       <Textarea
         autoFocus
         className="placeholder:text-muted-foreground max-h-[200px] min-h-[80px] w-full resize-none border-0 !bg-transparent px-1 !text-[15px] shadow-none focus-visible:ring-0"
@@ -73,10 +101,10 @@ export function ChatInput({ user, input, setInput, handleSubmit, status, isStrea
             <span className="sr-only">Attach files</span>
           </Button>
           <input
-            accept="image/*"
+            accept="image/*, application/pdf"
             className="hidden"
             multiple
-            // onChange={handleFileChange}
+            onChange={handleFileChange}
             ref={fileInputRef}
             type="file"
           />
