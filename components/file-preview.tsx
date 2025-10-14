@@ -1,6 +1,6 @@
 import { useAttachments } from '@/hooks/use-attachments'
 import { FileUIPart } from 'ai'
-import { Loader2, PaperclipIcon, XIcon } from 'lucide-react'
+import { ImageIcon, Loader2, PaperclipIcon, XIcon } from 'lucide-react'
 import { memo, useMemo } from 'react'
 import { Button } from './ui/button'
 
@@ -32,7 +32,13 @@ function FilePreview({ filesToSend, filesToUpload, isUploading, removeFile }: Fi
               {isUploading && !isFileUploaded ? (
                 <Loader2 className="size-4 shrink-0 animate-spin opacity-60" aria-hidden="true" />
               ) : (
-                <PaperclipIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                <>
+                  {file.type.startsWith('image/') ? (
+                    <ImageIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                  ) : (
+                    <PaperclipIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                  )}
+                </>
               )}
               <div className="min-w-0">
                 <p className="truncate text-[13px] font-medium">{file.name}</p>
