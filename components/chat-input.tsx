@@ -11,9 +11,12 @@ import { models } from '@/lib/ai/models'
 import { useChatConfig } from './chat-config-provider'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
+import { useRef } from 'react'
+import { toast } from 'sonner'
 
 export function ChatInput({ user }: { user: User | undefined }) {
   const { config, updateConfig } = useChatConfig()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const isStreaming = false
 
   return (
@@ -43,11 +46,11 @@ export function ChatInput({ user }: { user: User | undefined }) {
           <Button
             className="rounded-full"
             onClick={() => {
-              // if (user) {
-              //   fileInputRef.current?.click()
-              // } else {
-              //   toast.error('Please sign in to attach files')
-              // }
+              if (user) {
+                fileInputRef.current?.click()
+              } else {
+                toast.error('Please sign in to attach files')
+              }
             }}
             size="icon-sm"
             type="button"
@@ -61,7 +64,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
             className="hidden"
             multiple
             //   onChange={handleFileChange}
-            //   ref={fileInputRef}
+            ref={fileInputRef}
             type="file"
           />
           <div className={buttonVariants({ variant: 'chatInput', size: 'sm' })}>

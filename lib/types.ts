@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import type { UIMessage } from 'ai'
 
 export type ModelProvider = 'openai' | 'anthropic' | 'google'
 
@@ -23,3 +24,13 @@ export const ChatConfigSchema = z.object({
 })
 
 export type ChatConfig = z.infer<typeof ChatConfigSchema>
+
+export type MessageMetadata = {
+  modelName: string
+  tps: number // tokens per second
+  ttft: number // time to first token
+  elapsedTime: number
+  completionTokens: number
+}
+
+export type UIMessageWithMetadata = UIMessage<MessageMetadata>

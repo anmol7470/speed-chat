@@ -1,10 +1,9 @@
 import { betterAuth } from 'better-auth'
-import { prismaAdapter } from 'better-auth/adapters/prisma'
-import prisma from '../prisma'
+import { Pool } from 'pg'
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: 'postgresql',
+  database: new Pool({
+    connectionString: process.env.DATABASE_URL,
   }),
   socialProviders: {
     google: {

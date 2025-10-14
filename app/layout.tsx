@@ -8,6 +8,7 @@ import { cookies } from 'next/headers'
 import { getSession } from '@/lib/auth/get-session'
 import { Toaster } from '@/components/ui/sonner'
 import { ChatConfigProvider } from '@/components/chat-config-provider'
+import { ConvexClientProvider } from '@/components/convex-client-provider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -36,15 +37,17 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-screen w-screen`}>
-        <SidebarProvider defaultOpen={defaultOpen}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <AppSidebar user={session?.user} />
-            <SidebarInset>
-              <ChatConfigProvider>{children}</ChatConfigProvider>
-            </SidebarInset>
-            <Toaster richColors />
-          </ThemeProvider>
-        </SidebarProvider>
+        <ConvexClientProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <AppSidebar user={session?.user} />
+              <SidebarInset>
+                <ChatConfigProvider>{children}</ChatConfigProvider>
+              </SidebarInset>
+              <Toaster richColors />
+            </ThemeProvider>
+          </SidebarProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   )

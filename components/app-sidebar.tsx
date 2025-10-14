@@ -21,10 +21,17 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { VariantProps } from 'class-variance-authority'
+import { useQueryWithStatus } from '@/lib/utils'
+import { api } from '@/convex/_generated/api'
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
+
+  const { status, data, error, isSuccess, isPending, isError } = useQueryWithStatus(
+    api.chat.getAllChats,
+    user?.id ? { userId: user.id } : 'skip'
+  )
 
   return (
     <Sidebar variant="inset">
