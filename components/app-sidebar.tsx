@@ -20,9 +20,9 @@ import { Key, LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lu
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { toast } from 'react-hot-toast'
-import { ApiKeyDialog } from './api-key-dialog'
+import { useChatConfig } from './chat-config-provider'
 import { SidebarChatItem } from './sidebar-chat-item'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button, buttonVariants } from './ui/button'
@@ -31,7 +31,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export function AppSidebar({ user }: { user: User | undefined }) {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
-  const [openApiKeyDialog, setOpenApiKeyDialog] = useState(false)
+  const { setOpenApiKeyDialog } = useChatConfig()
 
   const {
     data: chats,
@@ -160,7 +160,6 @@ export function AppSidebar({ user }: { user: User | undefined }) {
           <LoginButton className="flex w-full" variant="outline" size="lg" />
         )}
       </SidebarFooter>
-      <ApiKeyDialog open={openApiKeyDialog} onOpenChange={setOpenApiKeyDialog} />
     </Sidebar>
   )
 }

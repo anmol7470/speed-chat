@@ -2,14 +2,12 @@
 
 import { useAttachments } from '@/hooks/use-attachments'
 import { models } from '@/lib/ai/models'
-import { UIMessageWithMetadata } from '@/lib/types'
-import { UseChatHelpers } from '@ai-sdk/react'
-import { FileUIPart } from 'ai'
 import { User } from 'better-auth'
 import { ArrowUp, Check, ChevronDown, Paperclip, Square } from 'lucide-react'
 import { useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
+import { useChatContext } from './chat-provider'
 import { MemoizedFilePreview } from './file-preview'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
@@ -17,29 +15,8 @@ import { Label } from './ui/label'
 import { Switch } from './ui/switch'
 import { Textarea } from './ui/textarea'
 
-type ChatInputProps = {
-  user: User | undefined
-  input: string
-  setInput: (input: string) => void
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
-  status: UseChatHelpers<UIMessageWithMetadata>['status']
-  isStreaming: boolean
-  stop: UseChatHelpers<UIMessageWithMetadata>['stop']
-  filesToSend: FileUIPart[]
-  setFilesToSend: React.Dispatch<React.SetStateAction<FileUIPart[]>>
-}
-
-export function ChatInput({
-  user,
-  input,
-  setInput,
-  handleSubmit,
-  status,
-  isStreaming,
-  stop,
-  filesToSend,
-  setFilesToSend,
-}: ChatInputProps) {
+export function ChatInput({ user }: { user: User | undefined }) {
+  const { input, setInput, handleSubmit, status, isStreaming, stop, filesToSend, setFilesToSend } = useChatContext()
   const { config, updateConfig } = useChatConfig()
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

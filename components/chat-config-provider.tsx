@@ -5,6 +5,7 @@ import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
 import { customAlphabet } from 'nanoid'
 import { usePathname } from 'next/navigation'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
+import { ApiKeyDialog } from './api-key-dialog'
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 21)
 
@@ -12,6 +13,9 @@ type ChatConfigContextType = {
   config: ChatConfig
   updateConfig: (updates: Partial<ChatConfig>) => void
   chatId: string
+  setChatId: (chatId: string) => void
+  openApiKeyDialog: boolean
+  setOpenApiKeyDialog: (open: boolean) => void
 }
 
 const ChatConfigContext = createContext<ChatConfigContextType | undefined>(undefined)
@@ -25,7 +29,23 @@ const getDefaultConfig = (): ChatConfig => ({
 })
 
 export function ChatConfigProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname()
+  const urlChatId = pathname.split('/chat/')[1] ?? ''
   const [config, setConfigState] = useState<ChatConfig>(getDefaultConfig())
+  const [chatId, setChatId] = useState<string>(() => urlChatId || nanoid())
+  const [openApiKeyDialog, setOpenApiKeyDialog] = useState(false)
+
+  // Update chatId when URL changes
+  useEffect(() => {
+    if (urlChatId) {
+      // Navigating to an existing chat
+      setChatId(urlChatId)
+    } else {
+      // Navigating to home
+      const newId = nanoid()
+      setChatId(newId)
+    }
+  }, [urlChatId])
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -66,22 +86,14 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const pathname = usePathname()
-  const urlChatId = pathname.split('/chat/')[1] ?? ''
-  const [chatId, setChatId] = useState<string>(() => urlChatId || nanoid())
-
-  useEffect(() => {
-    if (urlChatId) {
-      // Navigating to an existing chat
-      setChatId(urlChatId)
-    } else {
-      // Navigating to home
-      const newId = nanoid()
-      setChatId(newId)
-    }
-  }, [urlChatId])
-
-  return <ChatConfigContext.Provider value={{ config, updateConfig, chatId }}>{children}</ChatConfigContext.Provider>
+  return (
+    <ChatConfigContext.Provider
+      value={{ config, updateConfig, chatId, setChatId, openApiKeyDialog, setOpenApiKeyDialog }}
+    >
+      {children}
+      <ApiKeyDialog open={openApiKeyDialog} onOpenChange={setOpenApiKeyDialog} />
+    </ChatConfigContext.Provider>
+  )
 }
 
 export function useChatConfig() {

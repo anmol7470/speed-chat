@@ -1,4 +1,3 @@
-import { useChatConfig } from '@/components/chat-config-provider'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +14,7 @@ import { GitBranch, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
+import { useChatConfig } from './chat-config-provider'
 
 export function SidebarChatItem({ chat }: { chat: Chat }) {
   const isMobile = useIsMobile()
