@@ -1,34 +1,31 @@
 import type { UIMessage } from 'ai'
 import * as z from 'zod'
 
-export type ModelProvider = 'openai' | 'anthropic' | 'google'
-
 export type ModelId =
-  | 'anthropic/claude-sonnet-4.5'
-  | 'openai/gpt-5'
-  | 'google/gemini-2.5-flash'
-  | 'google/gemini-2.5-pro'
+  | 'gpt-5-2025-08-07'
+  | 'gpt-5-mini-2025-08-07'
+  | 'gpt-5-nano-2025-08-07'
+  | 'gpt-5-chat-latest'
+  | 'chatgpt-4o-latest'
 
 export type Model = {
   id: ModelId
   name: string
-  reasoningModel: boolean
   default: boolean
-  provider: ModelProvider
+  supportsReasoning: boolean
+  reasoningConfigurable: boolean
+  supportsWebSearchTool: boolean
 }
 
 export const ChatConfigSchema = z.object({
-  selectedModel: z.string(), // saving model name cos model id is not unique
+  selectedModelId: z.custom<ModelId>(),
   apiKey: z.string(),
-  shouldWebSearch: z.boolean(),
 })
 
 export type ChatConfig = z.infer<typeof ChatConfigSchema>
 
 export type MessageMetadata = {
-  modelName: string
-  tps: number // tokens per second
-  ttft: number // time to first token
+  modelId: ModelId
   elapsedTime: number
   completionTokens: number
 }
@@ -40,6 +37,14 @@ export const ChatRequestSchema = z.object({
   chatId: z.string(),
   model: z.custom<Model>(),
   isNewChat: z.boolean(),
+  useReasoning: z.boolean(),
+  useWebSearch: z.boolean(),
 })
 
 export type ChatRequest = z.infer<typeof ChatRequestSchema>
+
+export type WebSearchToolOutput = {
+  action: {
+    query: string
+  }
+}

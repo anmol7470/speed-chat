@@ -1,9 +1,9 @@
 import { api } from '@/convex/_generated/api'
-import { chatSystemPrompt } from '@/lib/ai/prompts'
 import { getSession } from '@/lib/auth/get-session'
 import { getErrorMessage } from '@/lib/error'
+import { chatSystemPrompt } from '@/lib/prompts'
 import { ChatRequestSchema, MessageMetadata } from '@/lib/types'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { createOpenAI, OpenAIResponsesProviderOptions } from '@ai-sdk/openai'
 import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, streamText } from 'ai'
 import { fetchAction, fetchMutation } from 'convex/nextjs'
 import { nanoid } from 'nanoid'
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     })
   }
 
-  const { messages, chatId, model, isNewChat } = parsedBody.data
+  const { messages, chatId, model, isNewChat, useReasoning, useWebSearch } = parsedBody.data
 
   const headers = request.headers
   const apiKey = headers.get('x-api-key')
@@ -62,9 +62,7 @@ export async function POST(request: Request) {
     })
   }
 
-  const shouldUseReasoning = model.reasoningModel === true
-
-  const openrouter = createOpenRouter({
+  const openai = createOpenAI({
     apiKey: apiKey,
   })
 
@@ -96,50 +94,28 @@ export async function POST(request: Request) {
     })
 
     const startTime = Date.now()
-    let ttftCalculated = false
-    let ttft = 0
 
     const response = streamText({
-      model: openrouter(model.id),
-      // TODO: check this config to see if it works
-      ...(shouldUseReasoning && {
-        providerOptions: {
-          anthropic: {
-            thinking: {
-              type: 'enabled',
-              budgetTokens: 15_000,
-            },
+      model: openai(model.id),
+      ...(model.supportsReasoning &&
+        (!model.reasoningConfigurable || useReasoning) && {
+          providerOptions: {
+            openai: {
+              reasoningEffort: 'medium',
+              reasoningSummary: 'detailed',
+            } satisfies OpenAIResponsesProviderOptions,
           },
-          openai: {
-            reasoningEffort: 'medium',
-            reasoningSummary: 'detailed',
-          },
-          google: {
-            thinkingConfig: {
-              thinkingBudget: 15_000,
-              includeThoughts: true,
-            },
-          },
-        },
-      }),
+        }),
       system: chatSystemPrompt(model.name),
       messages: convertToModelMessages(messages),
       experimental_transform: smoothStream({
         chunking: 'word',
       }),
       stopWhen: stepCountIs(10),
-      onChunk: (event) => {
-        if (
-          !ttftCalculated &&
-          (event.chunk.type === 'text-delta' ||
-            event.chunk.type === 'reasoning-delta' ||
-            event.chunk.type === 'tool-call')
-        ) {
-          // Time to first token (in seconds) the moment text delta or reasoning or tool call starts
-          ttft = (Date.now() - startTime) / 1000
-          ttftCalculated = true
-        }
+      tools: {
+        ...(useWebSearch && model.supportsWebSearchTool && { web_search: openai.tools.webSearch() }),
       },
+      ...(useWebSearch && model.supportsWebSearchTool && { toolChoice: { type: 'tool', toolName: 'web_search' } }), // force web_search tool when web search is enabled
     })
 
     return response.toUIMessageStreamResponse({
@@ -152,14 +128,11 @@ export async function POST(request: Request) {
         if (part.type === 'finish') {
           const usage = part.totalUsage
           const endTime = Date.now()
-          const elapsedTime = endTime - startTime
+          const elapsedTime = (endTime - startTime) / 1000 // convert milliseconds to seconds
           const outputTokens = (usage?.outputTokens ?? 0) + (usage?.reasoningTokens ?? 0) // total tokens includes input + system prompt too so using this instead
-          const tps = outputTokens ? outputTokens / (elapsedTime / 1000) : 0
 
           const metadata: MessageMetadata = {
-            modelName: model.name,
-            tps,
-            ttft,
+            modelId: model.id,
             elapsedTime,
             completionTokens: outputTokens,
           }

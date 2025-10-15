@@ -1,6 +1,6 @@
 'use client'
 
-import { models } from '@/lib/ai/models'
+import { models } from '@/lib/models'
 import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
 import { customAlphabet } from 'nanoid'
 import { usePathname } from 'next/navigation'
@@ -24,9 +24,8 @@ const ChatConfigContext = createContext<ChatConfigContextType | undefined>(undef
 const STORAGE_KEY = 'chat-config'
 
 const getDefaultConfig = (): ChatConfig => ({
-  selectedModel: models.find((m) => m.default)?.name || 'GPT-5',
+  selectedModelId: models.find((m) => m.default)?.id || 'gpt-5-2025-08-07',
   apiKey: '',
-  shouldWebSearch: false,
 })
 
 export function ChatConfigProvider({ children }: { children: ReactNode }) {

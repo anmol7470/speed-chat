@@ -1,8 +1,8 @@
 'use client'
 
 import { api } from '@/convex/_generated/api'
-import { models } from '@/lib/ai/models'
-import type { Model, UIMessageWithMetadata } from '@/lib/types'
+import { models } from '@/lib/models'
+import type { ChatRequest, Model, UIMessageWithMetadata } from '@/lib/types'
 import { useQueryWithStatus } from '@/lib/utils'
 import { useChat, UseChatHelpers } from '@ai-sdk/react'
 import { createIdGenerator, DefaultChatTransport, FileUIPart } from 'ai'
@@ -32,6 +32,10 @@ type ChatContextType = {
     body: { chatId: string; model: Model | undefined; isNewChat: boolean }
     headers: { 'x-api-key': string }
   }
+  useReasoning: boolean
+  setUseReasoning: (useReasoning: boolean) => void
+  useWebSearch: boolean
+  setUseWebSearch: (useWebSearch: boolean) => void
 }
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -49,6 +53,8 @@ export const ChatProvider = ({
   const { config, chatId, setOpenApiKeyDialog } = useChatConfig()
   const [input, setInput] = useState('')
   const [filesToSend, setFilesToSend] = useState<FileUIPart[]>([])
+  const [useReasoning, setUseReasoning] = useState(false)
+  const [useWebSearch, setUseWebSearch] = useState(false)
 
   const {
     data: initialMessages,
@@ -100,14 +106,16 @@ export const ChatProvider = ({
     return {
       body: {
         chatId,
-        model: models.find((m) => m.name === config.selectedModel),
+        model: models.find((m) => m.id === config.selectedModelId)!,
+        useReasoning,
+        useWebSearch,
         isNewChat: isFirstMessage,
-      },
+      } satisfies Omit<ChatRequest, 'messages'>,
       headers: {
         'x-api-key': config.apiKey,
       },
     }
-  }, [chatId, config, messages.length])
+  }, [chatId, config, messages, useReasoning, useWebSearch])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -179,6 +187,10 @@ export const ChatProvider = ({
         error,
         clearError,
         buildBodyAndHeaders,
+        useReasoning,
+        setUseReasoning,
+        useWebSearch,
+        setUseWebSearch,
       }}
     >
       {children}

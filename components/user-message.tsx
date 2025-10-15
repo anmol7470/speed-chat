@@ -118,7 +118,8 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
     <div className={cn('group ml-auto flex flex-col', isEditing ? 'w-full' : 'w-fit max-w-[85%]')}>
       <div
         className={cn(
-          'bg-muted ml-auto w-fit rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
+          'bg-muted rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
+          isEditing ? 'w-full' : 'ml-auto w-fit',
           hasFiles && 'flex flex-col gap-2'
         )}
       >

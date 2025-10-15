@@ -27,9 +27,7 @@ const schema = defineSchema({
     chatId: v.id('chats'),
     metadata: v.optional(
       v.object({
-        modelName: v.string(),
-        tps: v.number(),
-        ttft: v.number(),
+        modelId: v.string(),
         elapsedTime: v.number(),
         completionTokens: v.number(),
       })

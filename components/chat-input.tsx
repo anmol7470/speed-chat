@@ -1,10 +1,10 @@
 'use client'
 
 import { useAttachments } from '@/hooks/use-attachments'
-import { models } from '@/lib/ai/models'
+import { models } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { User } from 'better-auth'
-import { ArrowUp, Check, ChevronDown, Globe, Paperclip, Square } from 'lucide-react'
+import { ArrowUp, Brain, Check, ChevronDown, Globe, Paperclip, Square } from 'lucide-react'
 import { useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
@@ -16,7 +16,20 @@ import { Textarea } from './ui/textarea'
 import { Toggle } from './ui/toggle'
 
 export function ChatInput({ user }: { user: User | undefined }) {
-  const { input, setInput, handleSubmit, status, isStreaming, stop, filesToSend, setFilesToSend } = useChatContext()
+  const {
+    input,
+    setInput,
+    handleSubmit,
+    status,
+    isStreaming,
+    stop,
+    filesToSend,
+    setFilesToSend,
+    useReasoning,
+    useWebSearch,
+    setUseReasoning,
+    setUseWebSearch,
+  } = useChatContext()
   const { config, updateConfig, isLoading } = useChatConfig()
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -29,9 +42,11 @@ export function ChatInput({ user }: { user: User | undefined }) {
     user,
   })
 
+  const currentModel = models.find((m) => m.id === config.selectedModelId)
+
   return (
     <form
-      className="bg-muted mx-auto w-full max-w-3xl shrink-0 rounded-xl p-2 px-4 sm:px-2"
+      className="border-border bg-background mx-auto w-full max-w-3xl rounded-xl border p-2 px-4 shadow-xs sm:px-2"
       onSubmit={(e) => {
         e.preventDefault()
         handleSubmit(e)
@@ -72,7 +87,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
             }}
             size="icon-sm"
             type="button"
-            variant="outline"
+            variant="ghost"
           >
             <Paperclip className="size-5" />
             <span className="sr-only">Attach files</span>
@@ -87,39 +102,50 @@ export function ChatInput({ user }: { user: User | undefined }) {
           />
           {!isLoading && (
             <>
-              <Toggle
-                pressed={config.shouldWebSearch}
-                onPressedChange={(pressed) => updateConfig({ shouldWebSearch: pressed })}
-                aria-label="Web search"
-                className={cn(
-                  buttonVariants({ variant: 'outline', size: 'sm' }),
-                  '[&[data-state=on]]:bg-primary [&[data-state=on]]:text-accent dark:hover:[&[data-state=on]]:bg-primary'
-                )}
-              >
-                <Globe className="size-4.5" />
-                Search
-              </Toggle>
+              {currentModel?.supportsWebSearchTool && (
+                <Toggle
+                  pressed={useWebSearch}
+                  onPressedChange={(pressed) => setUseWebSearch(pressed)}
+                  aria-label="Web search"
+                  className={cn(
+                    buttonVariants({ variant: 'ghost', size: 'sm' }),
+                    '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent'
+                  )}
+                >
+                  <Globe className="size-4.5" />
+                  Search
+                </Toggle>
+              )}
+              {currentModel?.reasoningConfigurable && (
+                <Toggle
+                  pressed={useReasoning}
+                  onPressedChange={(pressed) => setUseReasoning(pressed)}
+                  aria-label="Reasoning"
+                  className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}
+                >
+                  <Brain className="size-4.5" />
+                  Reasoning
+                </Toggle>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" suppressHydrationWarning>
-                    {config.selectedModel}
+                  <Button variant="ghost" size="sm" suppressHydrationWarning>
+                    {currentModel?.name}
                     <ChevronDown className="text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-fit rounded-xl p-2">
+                <DropdownMenuContent className="w-48 rounded-xl p-2">
                   <div className="flex flex-col gap-1">
-                    {models
-                      .sort((a, b) => a.id.split('/')[0].localeCompare(b.id.split('/')[0]))
-                      .map((m) => (
-                        <DropdownMenuItem
-                          className="flex items-center justify-between gap-2 rounded-lg py-2"
-                          key={m.name}
-                          onClick={() => updateConfig({ selectedModel: m.name })}
-                        >
-                          <div className="flex items-center gap-2">{m.name}</div>
-                          {m.name === config.selectedModel && <Check className="size-4" />}
-                        </DropdownMenuItem>
-                      ))}
+                    {models.map((m) => (
+                      <DropdownMenuItem
+                        className="flex items-center justify-between gap-2 rounded-lg py-2"
+                        key={m.id}
+                        onClick={() => updateConfig({ selectedModelId: m.id })}
+                      >
+                        <div className="flex items-center gap-2">{m.name}</div>
+                        {m.id === currentModel?.id && <Check className="size-4" />}
+                      </DropdownMenuItem>
+                    ))}
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>

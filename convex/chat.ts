@@ -1,9 +1,9 @@
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { createOpenAI } from '@ai-sdk/openai'
 import { convertToModelMessages, generateText } from 'ai'
 import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { FunctionReturnType } from 'convex/server'
 import { ConvexError, v } from 'convex/values'
-import { titleGenPrompt } from '../lib/ai/prompts'
+import { titleGenPrompt } from '../lib/prompts'
 import type { UIMessageWithMetadata } from '../lib/types'
 import { api, internal } from './_generated/api'
 import { action, internalMutation, mutation, query } from './_generated/server'
@@ -74,12 +74,12 @@ export const generateChatTitle = action({
     userMessage: v.any(),
   },
   handler: async (ctx, args) => {
-    const openrouter = createOpenRouter({
+    const openai = createOpenAI({
       apiKey: args.apiKey,
     })
 
     const response = await generateText({
-      model: openrouter('google/gemini-2.5-flash'),
+      model: openai('gpt-5-nano-2025-08-07'),
       system: titleGenPrompt,
       messages: convertToModelMessages([args.userMessage as UIMessageWithMetadata]),
     })
