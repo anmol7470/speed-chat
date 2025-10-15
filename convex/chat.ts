@@ -158,6 +158,44 @@ export const upsertMessage = mutation({
 
     await ctx.db.patch(chat._id, {
       updatedAt: Date.now(),
+      activeStreamId: undefined,
     })
+  },
+})
+
+export const getChatActiveStreamId = query({
+  args: {
+    chatId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
+      .first()
+
+    if (!chat) {
+      throw new ConvexError('Chat not found')
+    }
+
+    return chat.activeStreamId
+  },
+})
+
+export const updateChatActiveStreamId = mutation({
+  args: {
+    chatId: v.string(),
+    activeStreamId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
+      .first()
+
+    if (!chat) {
+      throw new ConvexError('Chat not found')
+    }
+
+    await ctx.db.patch(chat._id, { activeStreamId: args.activeStreamId })
   },
 })

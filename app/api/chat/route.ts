@@ -6,6 +6,9 @@ import { ChatRequestSchema, MessageMetadata } from '@/lib/types'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, streamText } from 'ai'
 import { fetchAction, fetchMutation } from 'convex/nextjs'
+import { nanoid } from 'nanoid'
+import { after } from 'next/server'
+import { createResumableStreamContext } from 'resumable-stream'
 
 export async function POST(request: Request) {
   const session = await getSession()
@@ -150,6 +153,21 @@ export async function POST(request: Request) {
           chatId,
           userId: session.user.id,
           message: responseMessage,
+        })
+      },
+      async consumeSseStream({ stream }) {
+        const streamId = nanoid()
+
+        // Create a resumable stream from the SSE stream
+        const streamContext = createResumableStreamContext({
+          waitUntil: after,
+        })
+        await streamContext.createNewResumableStream(streamId, () => stream)
+
+        // Update the chat with the active stream ID
+        await fetchMutation(api.chat.updateChatActiveStreamId, {
+          chatId,
+          activeStreamId: streamId,
         })
       },
     })

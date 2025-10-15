@@ -41,7 +41,7 @@ function ChatContainer({ user, paramsChatId }: { user: User | undefined; paramsC
               <ScrollToBottom />
             </StickToBottom>
           </div>
-          <div className="mb-3 flex-shrink-0 px-4 md:px-0">
+          <div className="mb-3 flex-shrink-0 px-2 md:px-0">
             <div className="mx-auto w-full max-w-3xl">
               <ChatInput user={user} />
             </div>

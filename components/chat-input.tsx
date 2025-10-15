@@ -56,7 +56,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
             e.currentTarget.form?.requestSubmit()
           }
         }}
-        placeholder="Send a message"
+        placeholder="Ask anything"
         ref={inputRef}
         value={input}
       />

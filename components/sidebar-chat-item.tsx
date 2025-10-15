@@ -33,8 +33,6 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
   const pinChat = useMutation(api.chatActions.pinChat)
   const renameChatTitle = useMutation(api.chatActions.renameChatTitle)
 
-  const isStreaming = false
-
   const clearInput = () => {
     setIsRenamingChat(false)
     setRenamingChatId(null)
@@ -81,7 +79,7 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
           </Link>
         )}
       </SidebarMenuButton>
-      {chat.id === currentChatId && isStreaming ? (
+      {chat.activeStreamId ? (
         <SidebarMenuAction className="!top-2">
           <Loader2 className="size-4 animate-spin" />
           <span className="sr-only">Loading</span>
