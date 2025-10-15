@@ -2,8 +2,7 @@ import { api } from '@/convex/_generated/api'
 import { getSession } from '@/lib/auth/get-session'
 import { UI_MESSAGE_STREAM_HEADERS } from 'ai'
 import { fetchQuery } from 'convex/nextjs'
-import { after } from 'next/server'
-import { createResumableStreamContext } from 'resumable-stream'
+import { getStreamContext } from '../../route'
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,11 +21,9 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     return new Response(null, { status: 204 })
   }
 
-  const streamContext = createResumableStreamContext({
-    waitUntil: after,
-  })
+  const streamContext = getStreamContext()
 
-  return new Response(await streamContext.resumeExistingStream(activeStreamId), {
+  return new Response(await streamContext?.resumeExistingStream(activeStreamId), {
     headers: UI_MESSAGE_STREAM_HEADERS,
   })
 }

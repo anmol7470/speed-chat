@@ -115,9 +115,12 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
   }
 
   return (
-    <div className={cn('group', isEditing ? 'w-full' : 'ml-auto w-fit max-w-[75%]')}>
+    <div className={cn('group ml-auto flex flex-col', isEditing ? 'w-full' : 'w-fit max-w-[85%]')}>
       <div
-        className={cn('bg-muted rounded-lg p-2.5 break-words whitespace-pre-wrap', hasFiles && 'flex flex-col gap-2')}
+        className={cn(
+          'bg-muted ml-auto w-fit rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
+          hasFiles && 'flex flex-col gap-2'
+        )}
       >
         {displayParts.map((part, index) => {
           switch (part.type) {
@@ -162,9 +165,7 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
                   </div>
                 </div>
               ) : (
-                <div className="px-2" key={index}>
-                  {part.text}
-                </div>
+                <span key={index}>{part.text.trim()}</span>
               )
             case 'file':
               return (

@@ -36,13 +36,13 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} h-screen overflow-hidden antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ConvexClientProvider>
           <ChatConfigProvider>
             <SidebarProvider defaultOpen={defaultOpen}>
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
                 <AppSidebar user={session?.user} />
-                <SidebarInset className="h-screen overflow-hidden">{children}</SidebarInset>
+                <SidebarInset>{children}</SidebarInset>
                 <Toaster position="top-center" reverseOrder={false} />
               </ThemeProvider>
             </SidebarProvider>

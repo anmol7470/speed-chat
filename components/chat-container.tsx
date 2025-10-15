@@ -22,7 +22,7 @@ function ChatContainer({ user, paramsChatId }: { user: User | undefined; paramsC
   const shouldShowCenteredEmptyState = !paramsChatId && messages.length === 0
 
   return (
-    <div className="flex h-full w-full flex-col">
+    <div className="flex h-dvh flex-col">
       <Header user={user} />
       {shouldShowCenteredEmptyState ? (
         <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-6 px-4 md:px-0">
@@ -34,17 +34,15 @@ function ChatContainer({ user, paramsChatId }: { user: User | undefined; paramsC
       ) : (
         <>
           <div className="relative flex-1 overflow-hidden">
-            <StickToBottom resize="instant" initial="instant" className="h-full overflow-y-auto">
-              <StickToBottom.Content>
-                <div className="mx-auto w-full max-w-3xl px-4 md:px-0">{isLoadingMessages ? null : <Messages />}</div>
+            <StickToBottom resize="instant" initial="instant" className="h-full">
+              <StickToBottom.Content className="mx-auto w-full max-w-3xl px-4 md:px-0">
+                {isLoadingMessages ? null : <Messages />}
               </StickToBottom.Content>
               <ScrollToBottom />
             </StickToBottom>
           </div>
-          <div className="mb-3 flex-shrink-0 px-2 md:px-0">
-            <div className="mx-auto w-full max-w-3xl">
-              <ChatInput user={user} />
-            </div>
+          <div className="mx-auto mb-3 w-full max-w-3xl flex-shrink-0 px-2 md:px-0">
+            <ChatInput user={user} />
           </div>
         </>
       )}

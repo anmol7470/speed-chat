@@ -8,7 +8,27 @@ import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, s
 import { fetchAction, fetchMutation } from 'convex/nextjs'
 import { nanoid } from 'nanoid'
 import { after } from 'next/server'
-import { createResumableStreamContext } from 'resumable-stream'
+import { createResumableStreamContext, type ResumableStreamContext } from 'resumable-stream'
+
+let globalStreamContext: ResumableStreamContext | null = null
+
+export function getStreamContext() {
+  if (!globalStreamContext) {
+    try {
+      globalStreamContext = createResumableStreamContext({
+        waitUntil: after,
+      })
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('REDIS_URL')) {
+        console.log(' > Resumable streams are disabled due to missing REDIS_URL')
+      } else {
+        console.error(error)
+      }
+    }
+  }
+
+  return globalStreamContext
+}
 
 export async function POST(request: Request) {
   const session = await getSession()
@@ -105,7 +125,6 @@ export async function POST(request: Request) {
       system: chatSystemPrompt(model.name),
       messages: convertToModelMessages(messages),
       experimental_transform: smoothStream({
-        delayInMs: 20,
         chunking: 'word',
       }),
       stopWhen: stepCountIs(10),
@@ -159,10 +178,10 @@ export async function POST(request: Request) {
         const streamId = nanoid()
 
         // Create a resumable stream from the SSE stream
-        const streamContext = createResumableStreamContext({
-          waitUntil: after,
-        })
-        await streamContext.createNewResumableStream(streamId, () => stream)
+        const streamContext = getStreamContext()
+        if (streamContext) {
+          await streamContext.createNewResumableStream(streamId, () => stream)
+        }
 
         // Update the chat with the active stream ID
         await fetchMutation(api.chat.updateChatActiveStreamId, {
