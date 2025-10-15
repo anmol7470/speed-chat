@@ -1,7 +1,7 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { UIMessageWithMetadata } from '@/lib/types'
-import { getConvexError } from '@/lib/utils'
+import { getErrorMessage } from '@/lib/error'
 import { useMutation } from 'convex/react'
 import { Check, Copy, GitBranch, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -64,7 +64,7 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
                   try {
                     deleteMessages({ messageIdsToDelete: [message.id] })
                   } catch (error) {
-                    toast.error(getConvexError(error))
+                    toast.error(getErrorMessage(error))
                   }
                   const { body, headers } = buildBodyAndHeaders()
                   regenerate({
@@ -92,7 +92,7 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
                     loading: 'Branching off from message...',
                     success: 'Message branched off successfully',
                     error: (error) => {
-                      return getConvexError(error)
+                      return getErrorMessage(error)
                     },
                   })
                   .then((branchChatId) => {

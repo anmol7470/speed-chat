@@ -1,7 +1,8 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import { getErrorMessage } from '@/lib/error'
 import { UIMessageWithMetadata } from '@/lib/types'
-import { cn, getConvexError } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { useMutation } from 'convex/react'
 import { Check, Copy, ImageIcon, PaperclipIcon, Pencil, XIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -92,7 +93,7 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
         deleteFiles({ fileUrls: removedFiles.map((file) => file.url) })
       }
     } catch (error) {
-      toast.error(getConvexError(error))
+      toast.error(getErrorMessage(error))
       return
     }
 

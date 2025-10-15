@@ -1,6 +1,7 @@
 import { api } from '@/convex/_generated/api'
 import { chatSystemPrompt } from '@/lib/ai/prompts'
 import { getSession } from '@/lib/auth/get-session'
+import { getErrorMessage } from '@/lib/error'
 import { ChatRequestSchema, MessageMetadata } from '@/lib/types'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, streamText } from 'ai'
@@ -58,6 +59,8 @@ export async function POST(request: Request) {
         apiKey,
         userId: session.user.id,
         userMessage: latestUserMessage,
+      }).catch((error) => {
+        console.error('Failed to generate chat title:', getErrorMessage(error))
       })
     }
 
@@ -65,6 +68,8 @@ export async function POST(request: Request) {
       chatId,
       userId: session.user.id,
       message: latestUserMessage,
+    }).catch((error) => {
+      console.error('Failed to upsert user message:', getErrorMessage(error))
     })
 
     const startTime = Date.now()
@@ -152,7 +157,7 @@ export async function POST(request: Request) {
     console.error('Chat route error:', error)
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : 'An error occurred while processing your request',
+        error: getErrorMessage(error),
       }),
       {
         status: 500,

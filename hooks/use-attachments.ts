@@ -1,5 +1,5 @@
 import { api } from '@/convex/_generated/api'
-import { getConvexError } from '@/lib/utils'
+import { getErrorMessage } from '@/lib/error'
 import type { FileUIPart } from 'ai'
 import { User } from 'better-auth'
 import { useMutation } from 'convex/react'
@@ -64,7 +64,7 @@ export function useAttachments({ filesToSend, setFilesToSend, user }: UseAttachm
       setFilesToSend((prev) => [...prev, ...urls])
       toast.success(`${urls.length} file(s) uploaded successfully`)
     } catch (error) {
-      toast.error(getConvexError(error))
+      toast.error(getErrorMessage(error))
       // Remove files from preview on error
       setFilesToUpload((prev) => prev.filter((f) => !files.includes(f)))
     } finally {
