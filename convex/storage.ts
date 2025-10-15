@@ -1,3 +1,4 @@
+import { getOneFrom } from 'convex-helpers/server/relationships'
 import { ConvexError, v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
 import { mutation } from './_generated/server'
@@ -38,10 +39,7 @@ export const deleteFiles = mutation({
     const storageIds: Id<'_storage'>[] = []
 
     for (const url of args.fileUrls) {
-      const attachment = await ctx.db
-        .query('attachments')
-        .withIndex('by_url', (q) => q.eq('url', url))
-        .first()
+      const attachment = await getOneFrom(ctx.db, 'attachments', 'by_url', url, 'url')
 
       if (attachment) {
         storageIds.push(attachment.id)

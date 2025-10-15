@@ -1,3 +1,4 @@
+import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { ConvexError, v } from 'convex/values'
 import { nanoid } from 'nanoid'
 import { mutation } from './_generated/server'
@@ -10,19 +11,13 @@ export const branchOffFromMessage = mutation({
   handler: async (ctx, args) => {
     const branchChatId = nanoid()
 
-    const parentChat = await ctx.db
-      .query('chats')
-      .withIndex('by_chat_id', (q) => q.eq('id', args.parentChatId))
-      .first()
+    const parentChat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.parentChatId, 'id')
 
     if (!parentChat) {
       throw new ConvexError(`Chat ${args.parentChatId} not found`)
     }
 
-    const parentMessages = await ctx.db
-      .query('messages')
-      .withIndex('by_chat_id', (q) => q.eq('chatId', parentChat._id))
-      .collect()
+    const parentMessages = await getManyFrom(ctx.db, 'messages', 'by_chat_id', parentChat._id, 'chatId')
 
     const messagesUntilMessageToBranch = parentMessages.slice(
       0,
@@ -61,10 +56,7 @@ export const renameChatTitle = mutation({
     newTitle: v.string(),
   },
   handler: async (ctx, args) => {
-    const chat = await ctx.db
-      .query('chats')
-      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
-      .first()
+    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
 
     if (!chat) {
       throw new ConvexError(`Chat ${args.chatId} not found`)
@@ -82,10 +74,7 @@ export const pinChat = mutation({
     isPinned: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const chat = await ctx.db
-      .query('chats')
-      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
-      .first()
+    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
 
     if (!chat) {
       throw new ConvexError(`Chat ${args.chatId} not found`)

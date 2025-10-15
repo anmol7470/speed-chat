@@ -1,5 +1,6 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, generateText } from 'ai'
+import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { FunctionReturnType } from 'convex/server'
 import { ConvexError, v } from 'convex/values'
 import { titleGenPrompt } from '../lib/ai/prompts'
@@ -12,11 +13,8 @@ export const getAllChats = query({
     userId: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query('chats')
-      .withIndex('by_user_id_and_updated_at', (q) => q.eq('userId', args.userId))
-      .order('desc')
-      .collect()
+    const chats = await getManyFrom(ctx.db, 'chats', 'by_user_id', args.userId, 'userId')
+    return chats.sort((a, b) => b.updatedAt - a.updatedAt)
   },
 })
 
@@ -37,11 +35,7 @@ export const getChatMessages = query({
       throw new ConvexError('Chat not found')
     }
 
-    const messages = await ctx.db
-      .query('messages')
-      .withIndex('by_chat_id', (q) => q.eq('chatId', chat._id))
-      .order('asc')
-      .collect()
+    const messages = await getManyFrom(ctx.db, 'messages', 'by_chat_id', chat._id, 'chatId')
 
     const uiMessages = messages.map((message) => ({
       id: message.id,
@@ -138,10 +132,7 @@ export const upsertMessage = mutation({
       throw new ConvexError('Chat not found')
     }
 
-    const existingMessage = await ctx.db
-      .query('messages')
-      .withIndex('by_message_id', (q) => q.eq('id', message.id))
-      .first()
+    const existingMessage = await getOneFrom(ctx.db, 'messages', 'by_message_id', message.id, 'id')
 
     if (existingMessage) {
       await ctx.db.patch(existingMessage._id, {
@@ -168,10 +159,7 @@ export const getChatActiveStreamId = query({
     chatId: v.string(),
   },
   handler: async (ctx, args) => {
-    const chat = await ctx.db
-      .query('chats')
-      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
-      .first()
+    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
 
     if (!chat) {
       throw new ConvexError('Chat not found')
@@ -187,10 +175,7 @@ export const updateChatActiveStreamId = mutation({
     activeStreamId: v.string(),
   },
   handler: async (ctx, args) => {
-    const chat = await ctx.db
-      .query('chats')
-      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
-      .first()
+    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
 
     if (!chat) {
       throw new ConvexError('Chat not found')

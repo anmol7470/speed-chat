@@ -1,3 +1,4 @@
+import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { ConvexError, v } from 'convex/values'
 import { UIMessageWithMetadata } from '../lib/types'
 import { internal } from './_generated/api'
@@ -12,10 +13,7 @@ export const deleteMessages = mutation({
     const convexIdsToDelete: Id<'messages'>[] = []
 
     for (const messageId of args.messageIdsToDelete) {
-      const message = await ctx.db
-        .query('messages')
-        .withIndex('by_message_id', (q) => q.eq('id', messageId))
-        .first()
+      const message = await getOneFrom(ctx.db, 'messages', 'by_message_id', messageId, 'id')
 
       if (!message) {
         throw new ConvexError(`Message ${messageId} not found`)
@@ -43,10 +41,7 @@ export const deleteAttachmentsFromMessage = internalMutation({
     const attachmentUrls = parts.filter((p) => p.type === 'file' && 'url' in p).flatMap((p) => p.url)
 
     for (const attachmentUrl of attachmentUrls) {
-      const attachment = await ctx.db
-        .query('attachments')
-        .withIndex('by_url', (q) => q.eq('url', attachmentUrl))
-        .first()
+      const attachment = await getOneFrom(ctx.db, 'attachments', 'by_url', attachmentUrl, 'url')
 
       if (attachment) {
         await ctx.db.delete(attachment._id)
@@ -61,29 +56,20 @@ export const deleteChat = mutation({
     chatId: v.string(),
   },
   handler: async (ctx, args) => {
-    const chat = await ctx.db
-      .query('chats')
-      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
-      .first()
+    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
 
     if (!chat) {
       throw new ConvexError(`Chat ${args.chatId} not found`)
     }
 
     // Check if this chat is a parent to any other chats (has branches)
-    const childChats = await ctx.db
-      .query('chats')
-      .withIndex('by_parent_chat_id', (q) => q.eq('parentChatId', args.chatId))
-      .first()
+    const childChats = await getOneFrom(ctx.db, 'chats', 'by_parent_chat_id', args.chatId, 'parentChatId')
 
     const hasChildBranches = childChats !== null
 
     await ctx.db.delete(chat._id)
 
-    const messagesToDelete = await ctx.db
-      .query('messages')
-      .withIndex('by_chat_id', (q) => q.eq('chatId', chat._id))
-      .collect()
+    const messagesToDelete = await getManyFrom(ctx.db, 'messages', 'by_chat_id', chat._id, 'chatId')
 
     for (const message of messagesToDelete) {
       // Only delete attachments if this chat has no child branches

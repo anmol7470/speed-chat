@@ -77,7 +77,7 @@ export const ChatProvider = ({
       transport: new DefaultChatTransport({
         api: '/api/chat',
       }),
-      resume: Boolean(chatId && paramsChatId),
+      resume: !!paramsChatId,
       onError: (error) => {
         try {
           const errorData = JSON.parse(error.message)
