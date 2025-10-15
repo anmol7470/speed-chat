@@ -115,7 +115,7 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
   }
 
   return (
-    <div className={cn('group', isEditing ? 'w-full' : 'ml-auto max-w-[85%]')}>
+    <div className={cn('group', isEditing ? 'w-full' : 'ml-auto w-fit max-w-[75%]')}>
       <div
         className={cn('bg-muted rounded-lg p-2.5 break-words whitespace-pre-wrap', hasFiles && 'flex flex-col gap-2')}
       >

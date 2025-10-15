@@ -1,7 +1,7 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
-import { UIMessageWithMetadata } from '@/lib/types'
 import { getErrorMessage } from '@/lib/error'
+import { UIMessageWithMetadata } from '@/lib/types'
 import { useMutation } from 'convex/react'
 import { Check, Copy, GitBranch, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -33,7 +33,7 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
     .join('')
 
   return (
-    <div className="group max-w-[95%]">
+    <div className="group">
       <div className="space-y-2 break-words whitespace-pre-wrap">
         {message.parts
           .filter((part) => part.type === 'text')

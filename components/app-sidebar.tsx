@@ -56,8 +56,8 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   }, [chats])
 
   return (
-    <Sidebar variant="inset">
-      <SidebarHeader className="flex flex-col items-center">
+    <Sidebar>
+      <SidebarHeader className="mt-1 flex flex-col items-center">
         <Link className="flex items-center gap-2" href="/">
           <div className="flex size-8 items-center justify-center rounded-lg bg-blue-300">
             <MessageSquare className="size-4.5 text-white" />
@@ -181,7 +181,7 @@ export function LoginButton({
       variant={variant}
     >
       <LogIn className="size-5" />
-      Login
+      Sign in
     </Button>
   )
 }

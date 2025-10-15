@@ -16,6 +16,7 @@ type ChatConfigContextType = {
   setChatId: (chatId: string) => void
   openApiKeyDialog: boolean
   setOpenApiKeyDialog: (open: boolean) => void
+  isLoading: boolean
 }
 
 const ChatConfigContext = createContext<ChatConfigContextType | undefined>(undefined)
@@ -34,6 +35,7 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
   const [config, setConfigState] = useState<ChatConfig>(getDefaultConfig())
   const [chatId, setChatId] = useState<string>(() => urlChatId || nanoid())
   const [openApiKeyDialog, setOpenApiKeyDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Update chatId when URL changes
   useEffect(() => {
@@ -64,6 +66,8 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
       // Clear invalid data and use default
       localStorage.removeItem(STORAGE_KEY)
       setConfigState(getDefaultConfig())
+    } finally {
+      setIsLoading(false)
     }
   }, [])
 
@@ -88,7 +92,7 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
 
   return (
     <ChatConfigContext.Provider
-      value={{ config, updateConfig, chatId, setChatId, openApiKeyDialog, setOpenApiKeyDialog }}
+      value={{ config, updateConfig, chatId, setChatId, openApiKeyDialog, setOpenApiKeyDialog, isLoading }}
     >
       {children}
       <ApiKeyDialog open={openApiKeyDialog} onOpenChange={setOpenApiKeyDialog} />
