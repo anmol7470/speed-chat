@@ -1,4 +1,4 @@
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import { UIMessageWithMetadata } from '../lib/types'
 import { internal } from './_generated/api'
 import { Id } from './_generated/dataModel'
@@ -18,7 +18,7 @@ export const deleteMessages = mutation({
         .first()
 
       if (!message) {
-        throw new Error(`Message ${messageId} not found`)
+        throw new ConvexError(`Message ${messageId} not found`)
       }
 
       convexIdsToDelete.push(message._id)

@@ -1,7 +1,7 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { UIMessageWithMetadata } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { cn, getConvexError } from '@/lib/utils'
 import { useMutation } from 'convex/react'
 import { Check, Copy, ImageIcon, PaperclipIcon, Pencil, XIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast'
 import { useChatContext } from './chat-provider'
 import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
   const { isCopied, copyToClipboard } = useCopyToClipboard()
@@ -90,8 +91,8 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
       if (removedFiles.length > 0) {
         deleteFiles({ fileUrls: removedFiles.map((file) => file.url) })
       }
-    } catch {
-      toast.error('Failed to delete messages or files')
+    } catch (error) {
+      toast.error(getConvexError(error))
       return
     }
 
@@ -204,21 +205,31 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
         })}
       </div>
       <div className="mt-1 flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          type="button"
-          onClick={() => {
-            copyToClipboard(messageContent)
-          }}
-        >
-          {isCopied ? <Check className="size-4" /> : <Copy className="size-4" />}
-          <span className="sr-only">Copy message</span>
-        </Button>
-        <Button variant="ghost" size="icon-sm" type="button" onClick={handleEditClick}>
-          <Pencil className="size-4" />
-          <span className="sr-only">Edit message</span>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              type="button"
+              onClick={() => {
+                copyToClipboard(messageContent)
+              }}
+            >
+              {isCopied ? <Check className="size-4" /> : <Copy className="size-4" />}
+              <span className="sr-only">Copy message</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{isCopied ? 'Copied!' : 'Copy'}</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon-sm" type="button" onClick={handleEditClick}>
+              <Pencil className="size-4" />
+              <span className="sr-only">Edit message</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Edit</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   )

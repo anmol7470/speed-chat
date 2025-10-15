@@ -1,4 +1,5 @@
 import { api } from '@/convex/_generated/api'
+import { getConvexError } from '@/lib/utils'
 import type { FileUIPart } from 'ai'
 import { User } from 'better-auth'
 import { useMutation } from 'convex/react'
@@ -37,10 +38,6 @@ export function useAttachments({ filesToSend, setFilesToSend, user }: UseAttachm
       const uploadPromises = files.map(async (file) => {
         const postUrl = await generateUploadUrl()
 
-        if (!postUrl) {
-          throw new Error('Failed to generate upload URL')
-        }
-
         const result = await fetch(postUrl, {
           method: 'POST',
           headers: { 'Content-Type': file.type },
@@ -48,20 +45,12 @@ export function useAttachments({ filesToSend, setFilesToSend, user }: UseAttachm
         })
 
         if (!result.ok) {
-          throw new Error(`Upload failed: ${result.statusText}`)
+          throw new Error('Failed to generate upload URL')
         }
 
         const { storageId } = await result.json()
 
-        if (!storageId) {
-          throw new Error('Failed to get storage ID')
-        }
-
         const url = await storeFile({ fileId: storageId, userId: user.id })
-
-        if (!url) {
-          throw new Error('Failed to store file')
-        }
 
         return {
           type: 'file' as const,
@@ -75,8 +64,7 @@ export function useAttachments({ filesToSend, setFilesToSend, user }: UseAttachm
       setFilesToSend((prev) => [...prev, ...urls])
       toast.success(`${urls.length} file(s) uploaded successfully`)
     } catch (error) {
-      console.error('Upload error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to upload files')
+      toast.error(getConvexError(error))
       // Remove files from preview on error
       setFilesToUpload((prev) => prev.filter((f) => !files.includes(f)))
     } finally {

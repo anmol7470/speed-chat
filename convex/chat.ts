@@ -1,7 +1,7 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, generateText } from 'ai'
 import { FunctionReturnType } from 'convex/server'
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import { titleGenPrompt } from '../lib/ai/prompts'
 import type { UIMessageWithMetadata } from '../lib/types'
 import { api, internal } from './_generated/api'
@@ -34,7 +34,7 @@ export const getChatMessages = query({
       .first()
 
     if (!chat) {
-      throw new Error('Chat not found')
+      throw new ConvexError('Chat not found')
     }
 
     const messages = await ctx.db
@@ -113,7 +113,7 @@ export const updateChatTitle = internalMutation({
       .first()
 
     if (!chat) {
-      throw new Error('Chat not found')
+      throw new ConvexError('Chat not found')
     }
 
     await ctx.db.patch(chat._id, { title: args.title })
@@ -135,7 +135,7 @@ export const upsertMessage = mutation({
       .first()
 
     if (!chat) {
-      throw new Error('Chat not found')
+      throw new ConvexError('Chat not found')
     }
 
     const existingMessage = await ctx.db

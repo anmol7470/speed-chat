@@ -1,4 +1,4 @@
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
 import { mutation } from './_generated/server'
 
@@ -17,7 +17,7 @@ export const storeFile = mutation({
     const url = await ctx.storage.getUrl(args.fileId)
 
     if (!url) {
-      throw new Error('Failed to get file url')
+      throw new ConvexError('Failed to get file url')
     }
 
     await ctx.db.insert('attachments', {

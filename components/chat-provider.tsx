@@ -76,6 +76,14 @@ export const ChatProvider = ({
       transport: new DefaultChatTransport({
         api: '/api/chat',
       }),
+      onError: (error) => {
+        try {
+          const errorData = JSON.parse(error.message)
+          toast.error(errorData.error || error.message)
+        } catch {
+          toast.error(error.message)
+        }
+      },
     })
 
   useEffect(() => {
