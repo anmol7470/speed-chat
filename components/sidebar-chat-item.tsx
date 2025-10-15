@@ -8,12 +8,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { api } from '@/convex/_generated/api'
 import type { Chat } from '@/convex/chat'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { getErrorMessage } from '@/lib/error'
+import { useMutation } from 'convex/react'
 import { GitBranch, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
 
 export function SidebarChatItem({ chat }: { chat: Chat }) {
@@ -24,6 +28,10 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
   const [renamingChatId, setRenamingChatId] = useState<string | null>(null)
   const [newChatTitle, setNewChatTitle] = useState('')
   const renameInputRef = useRef<HTMLInputElement>(null)
+
+  const deleteChat = useMutation(api.delete.deleteChat)
+  const pinChat = useMutation(api.chatActions.pinChat)
+  const renameChatTitle = useMutation(api.chatActions.renameChatTitle)
 
   const isStreaming = false
 
@@ -41,12 +49,16 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
             className="w-full border-none !bg-transparent px-0 shadow-none focus-visible:ring-0"
             onBlur={clearInput}
             onChange={(e) => setNewChatTitle(e.target.value)}
-            onKeyDown={(e) => {
+            onKeyDown={async (e) => {
               if (e.key === 'Enter') {
-                // renameChatTitle({
-                //   chatId: chat.id,
-                //   newTitle: newChatTitle,
-                // })
+                try {
+                  await renameChatTitle({
+                    chatId: chat.id,
+                    newTitle: newChatTitle,
+                  })
+                } catch (error) {
+                  toast.error(getErrorMessage(error))
+                }
                 clearInput()
               } else if (e.key === 'Escape') {
                 clearInput()
@@ -93,11 +105,17 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
             side={isMobile ? 'bottom' : 'right'}
           >
             <DropdownMenuItem
-              onClick={() => {
-                // pinChat({
-                //   chatId: chat.id,
-                //   isPinned: !chat.isPinned,
-                // })
+              onClick={async () => {
+                {
+                  try {
+                    await pinChat({
+                      chatId: chat.id,
+                      isPinned: !chat.isPinned,
+                    })
+                  } catch (error) {
+                    toast.error(getErrorMessage(error))
+                  }
+                }
               }}
             >
               {chat.isPinned ? <PinOff /> : <Pin />}
@@ -123,11 +141,13 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
                 if (chat.id === currentChatId) {
                   router.push('/')
                 }
-                // toast.promise(deleteChat({ chatId: chat.id }), {
-                //   loading: 'Deleting chat...',
-                //   success: 'Chat deleted',
-                //   error: 'Failed to delete chat',
-                // })
+                toast.promise(deleteChat({ chatId: chat.id }), {
+                  loading: 'Deleting chat...',
+                  success: 'Chat deleted',
+                  error: (error) => {
+                    return getErrorMessage(error)
+                  },
+                })
               }}
               variant="destructive"
             >

@@ -33,7 +33,7 @@ function ChatContainer({ user, paramsChatId }: { user: User | undefined; paramsC
         </div>
       ) : (
         <div className="flex h-full w-full flex-col">
-          <StickToBottom resize="smooth" initial="instant" className="relative min-h-0 flex-1 overflow-y-auto">
+          <StickToBottom resize="instant" initial="instant" className="relative min-h-0 flex-1 overflow-hidden">
             <StickToBottom.Content>
               <div className="mx-auto w-full max-w-3xl p-2.5 px-4 md:px-0">
                 {isLoadingMessages ? null : <Messages />}

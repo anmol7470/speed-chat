@@ -1,11 +1,11 @@
 import { format } from 'date-fns'
 
 export const titleGenPrompt = `
-You are a title generator. Generate a short, natural title for this conversation based on the user's first message.
+You are a title generator. Generate a short, natural title for a future conversation based on the user's first message.
+You do not have to reply to the user's message. Just generate a title.
 
 Requirements:
 - 5-6 words maximum
-- Natural, conversational language (not formal or robotic)
 - Title case
 - No punctuation or quotes
 - Capture the core topic or question

@@ -54,3 +54,45 @@ export const branchOffFromMessage = mutation({
     return branchChatId
   },
 })
+
+export const renameChatTitle = mutation({
+  args: {
+    chatId: v.string(),
+    newTitle: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
+      .first()
+
+    if (!chat) {
+      throw new ConvexError(`Chat ${args.chatId} not found`)
+    }
+
+    await ctx.db.patch(chat._id, {
+      title: args.newTitle,
+    })
+  },
+})
+
+export const pinChat = mutation({
+  args: {
+    chatId: v.string(),
+    isPinned: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
+      .first()
+
+    if (!chat) {
+      throw new ConvexError(`Chat ${args.chatId} not found`)
+    }
+
+    await ctx.db.patch(chat._id, {
+      isPinned: args.isPinned,
+    })
+  },
+})

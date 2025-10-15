@@ -55,3 +55,44 @@ export const deleteAttachmentsFromMessage = internalMutation({
     }
   },
 })
+
+export const deleteChat = mutation({
+  args: {
+    chatId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id', (q) => q.eq('id', args.chatId))
+      .first()
+
+    if (!chat) {
+      throw new ConvexError(`Chat ${args.chatId} not found`)
+    }
+
+    // Check if this chat is a parent to any other chats (has branches)
+    const childChats = await ctx.db
+      .query('chats')
+      .withIndex('by_parent_chat_id', (q) => q.eq('parentChatId', args.chatId))
+      .first()
+
+    const hasChildBranches = childChats !== null
+
+    await ctx.db.delete(chat._id)
+
+    const messagesToDelete = await ctx.db
+      .query('messages')
+      .withIndex('by_chat_id', (q) => q.eq('chatId', chat._id))
+      .collect()
+
+    for (const message of messagesToDelete) {
+      // Only delete attachments if this chat has no child branches
+      if (!hasChildBranches) {
+        await ctx.runMutation(internal.delete.deleteAttachmentsFromMessage, {
+          messageParts: message.parts,
+        })
+      }
+      await ctx.db.delete(message._id)
+    }
+  },
+})
