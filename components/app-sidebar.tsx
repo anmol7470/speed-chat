@@ -20,9 +20,10 @@ import { Key, LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lu
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
+import { SearchDialog } from './search-dialog'
 import { SidebarChatItem } from './sidebar-chat-item'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button, buttonVariants } from './ui/button'
@@ -35,6 +36,7 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const { setOpenApiKeyDialog, chatId } = useChatConfig()
+  const [openSearchDialog, setOpenSearchDialog] = useState(false)
 
   const {
     data: chats,
@@ -88,7 +90,7 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton>
+              <SidebarMenuButton onClick={() => setOpenSearchDialog(true)}>
                 <Search />
                 Search chats
               </SidebarMenuButton>
@@ -164,9 +166,11 @@ export function AppSidebar() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <LoginButton className="mb-2 flex w-full" variant="outline" size="lg" />
+          <LoginButton className="mb-1 flex w-full" variant="outline" size="lg" />
         )}
       </SidebarFooter>
+
+      <SearchDialog open={openSearchDialog} onOpenChange={setOpenSearchDialog} />
     </Sidebar>
   )
 }
