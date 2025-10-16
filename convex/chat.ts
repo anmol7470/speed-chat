@@ -157,9 +157,13 @@ export const upsertMessage = mutation({
 export const getChatActiveStreamId = query({
   args: {
     chatId: v.string(),
+    userId: v.string(),
   },
   handler: async (ctx, args) => {
-    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', args.userId))
+      .first()
 
     if (!chat) {
       throw new ConvexError('Chat not found')
@@ -172,10 +176,14 @@ export const getChatActiveStreamId = query({
 export const updateChatActiveStreamId = mutation({
   args: {
     chatId: v.string(),
+    userId: v.string(),
     activeStreamId: v.string(),
   },
   handler: async (ctx, args) => {
-    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', args.userId))
+      .first()
 
     if (!chat) {
       throw new ConvexError('Chat not found')

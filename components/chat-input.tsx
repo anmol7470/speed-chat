@@ -4,7 +4,7 @@ import { useAttachments } from '@/hooks/use-attachments'
 import { models } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { User } from 'better-auth'
-import { ArrowUp, Brain, ChevronDown, Globe, Paperclip, Square } from 'lucide-react'
+import { ArrowUp, Brain, ChevronDown, Globe, Loader2, Paperclip } from 'lucide-react'
 import { useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
@@ -22,7 +22,6 @@ export function ChatInput({ user }: { user: User | undefined }) {
     handleSubmit,
     status,
     isStreaming,
-    stop,
     filesToSend,
     setFilesToSend,
     useWebSearch,
@@ -141,17 +140,12 @@ export function ChatInput({ user }: { user: User | undefined }) {
         </div>
         <Button
           className="rounded-full"
-          disabled={status === 'ready' && !input.trim()}
-          onClick={() => {
-            if (isStreaming) {
-              stop()
-            }
-          }}
+          disabled={(status === 'ready' && !input.trim()) || isStreaming}
           size="icon-sm"
           type="submit"
         >
-          {isStreaming ? <Square className="size-5" /> : <ArrowUp className="size-5" />}
-          <span className="sr-only">{isStreaming ? 'Stop' : 'Send message'}</span>
+          {isStreaming ? <Loader2 className="size-5 animate-spin" /> : <ArrowUp className="size-5" />}
+          <span className="sr-only">Send message</span>
         </Button>
       </div>
     </form>

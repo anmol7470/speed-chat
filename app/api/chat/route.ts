@@ -158,6 +158,7 @@ export async function POST(request: Request) {
         // Update the chat with the active stream ID
         await fetchMutation(api.chat.updateChatActiveStreamId, {
           chatId,
+          userId: session.user.id,
           activeStreamId: streamId,
         })
       },

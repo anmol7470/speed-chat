@@ -22,7 +22,6 @@ type ChatContextType = {
   messages: UIMessageWithMetadata[]
   sendMessage: UseChatHelpers<UIMessageWithMetadata>['sendMessage']
   status: UseChatHelpers<UIMessageWithMetadata>['status']
-  stop: UseChatHelpers<UIMessageWithMetadata>['stop']
   regenerate: UseChatHelpers<UIMessageWithMetadata>['regenerate']
   isLoadingMessages: boolean
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
@@ -69,7 +68,7 @@ export const ChatProvider = ({
     }
   }, [isError, router, paramsChatId])
 
-  const { messages, sendMessage, status, setMessages, stop, regenerate, error, clearError, resumeStream } =
+  const { messages, sendMessage, status, setMessages, regenerate, error, clearError, resumeStream } =
     useChat<UIMessageWithMetadata>({
       id: chatId,
       generateId: createIdGenerator({
@@ -181,7 +180,6 @@ export const ChatProvider = ({
         messages,
         sendMessage,
         status,
-        stop,
         regenerate,
         isLoadingMessages: isPending && !!paramsChatId && !!user,
         handleSubmit,

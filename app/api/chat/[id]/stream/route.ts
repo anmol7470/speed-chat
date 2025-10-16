@@ -20,6 +20,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   const activeStreamId = await fetchQuery(api.chat.getChatActiveStreamId, {
     chatId: id,
+    userId: session.user.id,
   })
 
   if (!activeStreamId) {
