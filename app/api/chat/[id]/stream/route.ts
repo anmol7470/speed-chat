@@ -1,8 +1,8 @@
 import { api } from '@/convex/_generated/api'
 import { getSession } from '@/lib/auth/get-session'
+import { getStreamContext } from '@/lib/stream-context'
 import { UI_MESSAGE_STREAM_HEADERS } from 'ai'
 import { fetchQuery } from 'convex/nextjs'
-import { getStreamContext } from '../../route'
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
