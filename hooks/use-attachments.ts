@@ -1,4 +1,4 @@
-import { useUser } from '@/components/user-provider'
+import { useUser } from '@/components/providers/user-provider'
 import { api } from '@/convex/_generated/api'
 import { getErrorMessage } from '@/lib/error'
 import type { FileUIPart } from 'ai'

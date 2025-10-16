@@ -18,7 +18,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
-import { useChatConfig } from './chat-config-provider'
+import { useChatConfig } from './providers/chat-config-provider'
 
 export function SidebarChatItem({ chat }: { chat: Chat }) {
   const isMobile = useIsMobile()

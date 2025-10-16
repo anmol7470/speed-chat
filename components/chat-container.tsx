@@ -1,14 +1,17 @@
 'use client'
 
 import { Conversation, ConversationContent, ConversationScrollButton } from '@/components/ai-elements/conversation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'react-hot-toast'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { ChatInput } from './chat-input'
-import { ChatProvider, useChatContext } from './chat-provider'
 import { Header } from './header'
 import { Messages } from './messages'
-import { useUser } from './user-provider'
+import { ChatProvider, useChatContext } from './providers/chat-provider'
+import { useDialogs } from './providers/dialogs-provider'
+import { useUser } from './providers/user-provider'
 
 export function ChatContainerParent({ paramsChatId }: { paramsChatId: string }) {
   return (
@@ -23,6 +26,17 @@ function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
   const { messages, isLoadingMessages } = useChatContext()
   const noActiveChat = !paramsChatId && messages.length === 0
   const [droppedFiles, setDroppedFiles] = useState<File[]>([])
+  const router = useRouter()
+  const { setOpenSearchDialog } = useDialogs()
+
+  useHotkeys('meta+k, ctrl+k', () => setOpenSearchDialog(true), {
+    enableOnFormTags: ['INPUT', 'TEXTAREA', 'SELECT'],
+    enableOnContentEditable: true,
+  })
+  useHotkeys('meta+shift+o, ctrl+shift+o', () => router.push('/'), {
+    enableOnFormTags: ['INPUT', 'TEXTAREA', 'SELECT'],
+    enableOnContentEditable: true,
+  })
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {

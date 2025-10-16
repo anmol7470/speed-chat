@@ -5,7 +5,6 @@ import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
 import { customAlphabet } from 'nanoid'
 import { usePathname } from 'next/navigation'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
-import { ApiKeyDialog } from './api-key-dialog'
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 21)
 
@@ -14,8 +13,6 @@ type ChatConfigContextType = {
   updateConfig: (updates: Partial<ChatConfig>) => void
   chatId: string
   setChatId: (chatId: string) => void
-  openApiKeyDialog: boolean
-  setOpenApiKeyDialog: (open: boolean) => void
   isLoading: boolean
 }
 
@@ -33,7 +30,6 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
   const urlChatId = pathname.split('/chat/')[1] ?? ''
   const [config, setConfigState] = useState<ChatConfig>(getDefaultConfig())
   const [chatId, setChatId] = useState<string>(() => urlChatId || nanoid())
-  const [openApiKeyDialog, setOpenApiKeyDialog] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   // Update chatId when URL changes
@@ -90,11 +86,8 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ChatConfigContext.Provider
-      value={{ config, updateConfig, chatId, setChatId, openApiKeyDialog, setOpenApiKeyDialog, isLoading }}
-    >
+    <ChatConfigContext.Provider value={{ config, updateConfig, chatId, setChatId, isLoading }}>
       {children}
-      <ApiKeyDialog open={openApiKeyDialog} onOpenChange={setOpenApiKeyDialog} />
     </ChatConfigContext.Provider>
   )
 }

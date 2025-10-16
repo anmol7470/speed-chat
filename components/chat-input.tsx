@@ -6,14 +6,14 @@ import { cn } from '@/lib/utils'
 import { ArrowUp, Brain, ChevronDown, Globe, Loader2, Paperclip } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
-import { useChatConfig } from './chat-config-provider'
-import { useChatContext } from './chat-provider'
 import { MemoizedFilePreview } from './file-preview'
+import { useChatConfig } from './providers/chat-config-provider'
+import { useChatContext } from './providers/chat-provider'
+import { useUser } from './providers/user-provider'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Textarea } from './ui/textarea'
 import { Toggle } from './ui/toggle'
-import { useUser } from './user-provider'
 
 export function ChatInput({
   isDragActive,

@@ -20,34 +20,24 @@ import { Key, LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lu
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { toast } from 'react-hot-toast'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { useChatConfig } from './chat-config-provider'
-import { SearchDialog } from './search-dialog'
+import { useChatConfig } from './providers/chat-config-provider'
+import { useDialogs } from './providers/dialogs-provider'
+import { useUser } from './providers/user-provider'
 import { SidebarChatItem } from './sidebar-chat-item'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Kbd, KbdGroup } from './ui/kbd'
-import { useUser } from './user-provider'
 
 export function AppSidebar() {
   const { user, isPending: isUserPending } = useUser()
   const { signOut } = useAuthActions()
   const { theme, setTheme } = useTheme()
   const router = useRouter()
-  const { setOpenApiKeyDialog, chatId } = useChatConfig()
-  const [openSearchDialog, setOpenSearchDialog] = useState(false)
-
-  useHotkeys('meta+k, ctrl+k', () => setOpenSearchDialog(true), {
-    enableOnFormTags: ['INPUT', 'TEXTAREA', 'SELECT'],
-    enableOnContentEditable: true,
-  })
-  useHotkeys('meta+shift+o, ctrl+shift+o', () => router.push('/'), {
-    enableOnFormTags: ['INPUT', 'TEXTAREA', 'SELECT'],
-    enableOnContentEditable: true,
-  })
+  const { chatId } = useChatConfig()
+  const { setOpenSearchDialog, setOpenApiKeyDialog } = useDialogs()
 
   const {
     data: chats,
@@ -195,8 +185,6 @@ export function AppSidebar() {
           <LoginButton className="mb-1 flex w-full" variant="outline" size="lg" />
         )}
       </SidebarFooter>
-
-      <SearchDialog open={openSearchDialog} onOpenChange={setOpenSearchDialog} />
     </Sidebar>
   )
 }

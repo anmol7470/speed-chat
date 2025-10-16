@@ -9,8 +9,9 @@ import { createIdGenerator, DefaultChatTransport, FileUIPart } from 'ai'
 import { useRouter } from 'next/navigation'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { Button } from '../ui/button'
 import { useChatConfig } from './chat-config-provider'
-import { Button } from './ui/button'
+import { useDialogs } from './dialogs-provider'
 import { useUser } from './user-provider'
 
 type ChatContextType = {
@@ -40,7 +41,8 @@ export const ChatContext = createContext<ChatContextType | undefined>(undefined)
 export const ChatProvider = ({ children, paramsChatId }: { children: React.ReactNode; paramsChatId: string }) => {
   const router = useRouter()
   const { user } = useUser()
-  const { config, chatId, setOpenApiKeyDialog } = useChatConfig()
+  const { config, chatId } = useChatConfig()
+  const { setOpenApiKeyDialog } = useDialogs()
   const [input, setInput] = useState('')
   const [filesToSend, setFilesToSend] = useState<FileUIPart[]>([])
   const [useWebSearch, setUseWebSearch] = useState(false)

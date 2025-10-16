@@ -1,6 +1,6 @@
 import { LoginButton } from './app-sidebar'
+import { useUser } from './providers/user-provider'
 import { SidebarTrigger } from './ui/sidebar'
-import { useUser } from './user-provider'
 
 export function Header() {
   const { user, isPending: isUserPending } = useUser()

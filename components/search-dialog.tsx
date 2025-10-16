@@ -10,7 +10,7 @@ import debounce from 'lodash.debounce'
 import { LogIn, MessageSquare } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useUser } from './user-provider'
+import { useUser } from './providers/user-provider'
 
 type SearchDialogProps = {
   open: boolean

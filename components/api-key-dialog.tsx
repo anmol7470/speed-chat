@@ -1,6 +1,6 @@
 'use client'
 
-import { useChatConfig } from '@/components/chat-config-provider'
+import { useChatConfig } from '@/components/providers/chat-config-provider'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
