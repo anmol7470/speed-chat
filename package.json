@@ -10,7 +10,7 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "shadcn-add": "bunx shadcn@latest add",
-    "auth-schema": "tsx lib/auth/schema.ts",
+    "push-auth-schema": "tsx lib/auth/schema.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

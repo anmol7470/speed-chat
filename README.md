@@ -46,7 +46,7 @@ cp .env.example .env.local
 3. Push the auth schema to your postgres database:
 
 ```bash
-bun run auth-schema
+bun run push-auth-schema
 ```
 
 2. Start the Convex development server and the Next.js development server:
@@ -55,7 +55,3 @@ bun run auth-schema
 bun run dev:convex
 bun run dev # app will be available at http://localhost:3000
 ```
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

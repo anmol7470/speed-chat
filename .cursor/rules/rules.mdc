@@ -16,3 +16,4 @@ alwaysApply: true
 - Use `cn` from `@/lib/utils` for all class name merging.
 - Never create markdown files (`.md`) after you are done. Never!
 - Never cast to any type. Always use correct types.
+- Use `convex-helpers/server/relationships` for queries with single indexes. These cannot be used with compound indexes. It exports `getOneFrom` (one-to-many), `getManyFrom` (many-to-one), `getAll` (all items), and `getManyVia` (many-to-many) functions.
