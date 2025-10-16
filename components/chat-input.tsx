@@ -5,7 +5,7 @@ import { models } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { User } from 'better-auth'
 import { ArrowUp, Brain, ChevronDown, Globe, Loader2, Paperclip } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
 import { useChatContext } from './chat-provider'
@@ -15,7 +15,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Textarea } from './ui/textarea'
 import { Toggle } from './ui/toggle'
 
-export function ChatInput({ user }: { user: User | undefined }) {
+export function ChatInput({
+  user,
+  isDragActive,
+  droppedFiles,
+  setDroppedFiles,
+}: {
+  user: User | undefined
+  isDragActive: boolean
+  droppedFiles: File[]
+  setDroppedFiles: React.Dispatch<React.SetStateAction<File[]>>
+}) {
   const {
     input,
     setInput,
@@ -33,17 +43,29 @@ export function ChatInput({ user }: { user: User | undefined }) {
     setInput(e.target.value)
   }
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { filesToUpload, setFilesToUpload, handleFileChange, removeFile, isUploading } = useAttachments({
-    filesToSend,
-    setFilesToSend,
-    user,
-  })
+  const { filesToUpload, setFilesToUpload, handleFileChange, removeFile, isUploading, processFilesAndUpload } =
+    useAttachments({
+      filesToSend,
+      setFilesToSend,
+      user,
+    })
+
+  // Process dropped files when they arrive
+  useEffect(() => {
+    if (droppedFiles.length > 0) {
+      processFilesAndUpload(droppedFiles)
+      setDroppedFiles([])
+    }
+  }, [droppedFiles, processFilesAndUpload, setDroppedFiles])
 
   const currentModel = models.find((m) => m.id === config.selectedModelId)
 
   return (
     <form
-      className="border-border bg-background mx-auto w-full max-w-3xl rounded-xl border p-2 px-4 shadow-xs sm:px-2"
+      className={cn(
+        'border-border bg-background mx-auto w-full max-w-3xl rounded-xl border p-2 px-4 shadow-xs transition-colors sm:px-2',
+        isDragActive && 'border-primary'
+      )}
       onSubmit={(e) => {
         e.preventDefault()
         handleSubmit(e)

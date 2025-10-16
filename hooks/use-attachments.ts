@@ -134,5 +134,6 @@ export function useAttachments({ filesToSend, setFilesToSend, user }: UseAttachm
     isUploading,
     handleFileChange,
     removeFile,
+    processFilesAndUpload,
   }
 }
