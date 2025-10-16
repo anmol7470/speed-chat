@@ -1,18 +1,18 @@
 import { api } from '@/convex/_generated/api'
-import { getSession } from '@/lib/auth/get-session'
 import { getErrorMessage } from '@/lib/error'
 import { chatSystemPrompt } from '@/lib/prompts'
 import { getStreamContext } from '@/lib/stream-context'
 import { ChatRequestSchema, MessageMetadata } from '@/lib/types'
 import { createOpenAI, OpenAIResponsesProviderOptions } from '@ai-sdk/openai'
+import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server'
 import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, streamText } from 'ai'
 import { fetchAction, fetchMutation } from 'convex/nextjs'
 import { nanoid } from 'nanoid'
 
 export async function POST(request: Request) {
-  const session = await getSession()
+  const token = await convexAuthNextjsToken()
 
-  if (!session) {
+  if (!token) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
@@ -49,26 +49,41 @@ export async function POST(request: Request) {
 
   try {
     if (isNewChat) {
-      await fetchMutation(api.chat.createChat, {
-        userId: session.user.id,
-        chatId,
-      })
+      await fetchMutation(
+        api.chat.createChat,
+        {
+          chatId,
+        },
+        {
+          token,
+        }
+      )
 
-      fetchAction(api.chat.generateChatTitle, {
-        chatId,
-        apiKey,
-        userId: session.user.id,
-        userMessage: latestUserMessage,
-      }).catch((error) => {
+      fetchAction(
+        api.chat.generateChatTitle,
+        {
+          chatId,
+          apiKey,
+          userMessage: latestUserMessage,
+        },
+        {
+          token,
+        }
+      ).catch((error) => {
         console.error('Failed to generate chat title:', getErrorMessage(error))
       })
     }
 
-    fetchMutation(api.chat.upsertMessage, {
-      chatId,
-      userId: session.user.id,
-      message: latestUserMessage,
-    }).catch((error) => {
+    fetchMutation(
+      api.chat.upsertMessage,
+      {
+        chatId,
+        message: latestUserMessage,
+      },
+      {
+        token,
+      }
+    ).catch((error) => {
       console.error('Failed to upsert user message:', getErrorMessage(error))
     })
 
@@ -119,11 +134,16 @@ export async function POST(request: Request) {
         }
       },
       onFinish: async ({ responseMessage }) => {
-        await fetchMutation(api.chat.upsertMessage, {
-          chatId,
-          userId: session.user.id,
-          message: responseMessage,
-        })
+        await fetchMutation(
+          api.chat.upsertMessage,
+          {
+            chatId,
+            message: responseMessage,
+          },
+          {
+            token,
+          }
+        )
       },
       async consumeSseStream({ stream }) {
         const streamId = nanoid()
@@ -135,11 +155,16 @@ export async function POST(request: Request) {
         }
 
         // Update the chat with the active stream ID
-        await fetchMutation(api.chat.updateChatActiveStreamId, {
-          chatId,
-          userId: session.user.id,
-          activeStreamId: streamId,
-        })
+        await fetchMutation(
+          api.chat.updateChatActiveStreamId,
+          {
+            chatId,
+            activeStreamId: streamId,
+          },
+          {
+            token,
+          }
+        )
       },
     })
   } catch (error) {

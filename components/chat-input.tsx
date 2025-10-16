@@ -3,7 +3,6 @@
 import { useAttachments } from '@/hooks/use-attachments'
 import { models } from '@/lib/models'
 import { cn } from '@/lib/utils'
-import { User } from 'better-auth'
 import { ArrowUp, Brain, ChevronDown, Globe, Loader2, Paperclip } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
@@ -14,18 +13,18 @@ import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Textarea } from './ui/textarea'
 import { Toggle } from './ui/toggle'
+import { useUser } from './user-provider'
 
 export function ChatInput({
-  user,
   isDragActive,
   droppedFiles,
   setDroppedFiles,
 }: {
-  user: User | undefined
   isDragActive: boolean
   droppedFiles: File[]
   setDroppedFiles: React.Dispatch<React.SetStateAction<File[]>>
 }) {
+  const { user } = useUser()
   const {
     input,
     setInput,
@@ -47,7 +46,6 @@ export function ChatInput({
     useAttachments({
       filesToSend,
       setFilesToSend,
-      user,
     })
 
   // Process dropped files when they arrive

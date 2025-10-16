@@ -2,6 +2,7 @@ import { getOneFrom } from 'convex-helpers/server/relationships'
 import { ConvexError, v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
 import { mutation } from './_generated/server'
+import { authedMutation } from './user'
 
 export const generateUploadUrl = mutation({
   handler: async (ctx) => {
@@ -9,9 +10,8 @@ export const generateUploadUrl = mutation({
   },
 })
 
-export const storeFile = mutation({
+export const storeFile = authedMutation({
   args: {
-    userId: v.string(),
     fileId: v.id('_storage'),
   },
   handler: async (ctx, args) => {
@@ -24,7 +24,7 @@ export const storeFile = mutation({
     await ctx.db.insert('attachments', {
       id: args.fileId,
       url,
-      userId: args.userId,
+      userId: ctx.userId,
     })
 
     return url

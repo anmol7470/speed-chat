@@ -6,29 +6,26 @@ import { ConvexError, v } from 'convex/values'
 import { titleGenPrompt } from '../lib/prompts'
 import type { UIMessageWithMetadata } from '../lib/types'
 import { api, internal } from './_generated/api'
-import { action, internalMutation, mutation, query } from './_generated/server'
+import { internalMutation } from './_generated/server'
+import { authedAction, authedMutation, authedQuery } from './user'
 
-export const getAllChats = query({
-  args: {
-    userId: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const chats = await getManyFrom(ctx.db, 'chats', 'by_user_id', args.userId, 'userId')
+export const getAllChats = authedQuery({
+  handler: async (ctx) => {
+    const chats = await getManyFrom(ctx.db, 'chats', 'by_user_id', ctx.userId, 'userId')
     return chats.sort((a, b) => b.updatedAt - a.updatedAt)
   },
 })
 
 export type Chat = FunctionReturnType<typeof api.chat.getAllChats>[number]
 
-export const getChatMessages = query({
+export const getChatMessages = authedQuery({
   args: {
-    userId: v.string(),
     chatId: v.string(),
   },
   handler: async (ctx, args) => {
     const chat = await ctx.db
       .query('chats')
-      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', args.userId))
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', ctx.userId))
       .first()
 
     if (!chat) {
@@ -48,15 +45,14 @@ export const getChatMessages = query({
   },
 })
 
-export const createChat = mutation({
+export const createChat = authedMutation({
   args: {
-    userId: v.string(),
     chatId: v.string(),
   },
   handler: async (ctx, args) => {
     await ctx.db.insert('chats', {
       id: args.chatId,
-      userId: args.userId,
+      userId: ctx.userId,
       title: 'New Chat',
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -66,11 +62,10 @@ export const createChat = mutation({
   },
 })
 
-export const generateChatTitle = action({
+export const generateChatTitle = authedAction({
   args: {
     chatId: v.string(),
     apiKey: v.string(),
-    userId: v.string(),
     userMessage: v.any(),
   },
   handler: async (ctx, args) => {
@@ -86,7 +81,7 @@ export const generateChatTitle = action({
 
     if (response.text) {
       await ctx.runMutation(internal.chat.updateChatTitle, {
-        userId: args.userId,
+        userId: ctx.userId,
         chatId: args.chatId,
         title: response.text,
       })
@@ -97,7 +92,7 @@ export const generateChatTitle = action({
 export const updateChatTitle = internalMutation({
   args: {
     chatId: v.string(),
-    userId: v.string(),
+    userId: v.id('users'),
     title: v.string(),
   },
   handler: async (ctx, args) => {
@@ -114,10 +109,9 @@ export const updateChatTitle = internalMutation({
   },
 })
 
-export const upsertMessage = mutation({
+export const upsertMessage = authedMutation({
   args: {
     chatId: v.string(),
-    userId: v.string(),
     message: v.any(),
   },
   handler: async (ctx, args) => {
@@ -125,7 +119,7 @@ export const upsertMessage = mutation({
 
     const chat = await ctx.db
       .query('chats')
-      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', args.userId))
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', ctx.userId))
       .first()
 
     if (!chat) {
@@ -154,15 +148,14 @@ export const upsertMessage = mutation({
   },
 })
 
-export const getChatActiveStreamId = query({
+export const getChatActiveStreamId = authedQuery({
   args: {
     chatId: v.string(),
-    userId: v.string(),
   },
   handler: async (ctx, args) => {
     const chat = await ctx.db
       .query('chats')
-      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', args.userId))
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', ctx.userId))
       .first()
 
     if (!chat) {
@@ -173,16 +166,15 @@ export const getChatActiveStreamId = query({
   },
 })
 
-export const updateChatActiveStreamId = mutation({
+export const updateChatActiveStreamId = authedMutation({
   args: {
     chatId: v.string(),
-    userId: v.string(),
     activeStreamId: v.string(),
   },
   handler: async (ctx, args) => {
     const chat = await ctx.db
       .query('chats')
-      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', args.userId))
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', ctx.userId))
       .first()
 
     if (!chat) {

@@ -1,14 +1,14 @@
 import { api } from '@/convex/_generated/api'
-import { getSession } from '@/lib/auth/get-session'
 import { getStreamContext } from '@/lib/stream-context'
+import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server'
 import { UI_MESSAGE_STREAM_HEADERS } from 'ai'
 import { fetchQuery } from 'convex/nextjs'
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const session = await getSession()
+  const token = await convexAuthNextjsToken()
 
-  if (!session) {
+  if (!token) {
     return new Response('Unauthorized', { status: 401 })
   }
 
@@ -18,10 +18,15 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     return new Response(null, { status: 204 })
   }
 
-  const activeStreamId = await fetchQuery(api.chat.getChatActiveStreamId, {
-    chatId: id,
-    userId: session.user.id,
-  })
+  const activeStreamId = await fetchQuery(
+    api.chat.getChatActiveStreamId,
+    {
+      chatId: id,
+    },
+    {
+      token,
+    }
+  )
 
   if (!activeStreamId) {
     return new Response(null, { status: 204 })

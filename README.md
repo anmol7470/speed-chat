@@ -20,7 +20,7 @@ An AI chat application built with Next.js 15, Convex, and AI SDK v5, featuring m
 - [Convex](https://www.convex.dev) - Reactive backend as a service platform
 - [Convex Helpers](https://github.com/get-convex/convex-helpers) - Helpers to extend the Convex SDK
 - [AI SDK](https://ai-sdk.dev) - Typescript AI toolkit to build AI applications
-- [Better Auth](https://better-auth.com) - Comprehensive auth library
+- [Convex Auth](https://labs.convex.dev/auth) - Convex auth library
 - [TailwindCSS v4](https://tailwindcss.com) - Inline CSS framework
 - [shadcn/ui](https://ui.shadcn.com) - Modern component library built on Radix UI
 - [resumable-stream](https://github.com/vercel/resumable-stream) - Resumable streams for AI SDK
@@ -43,15 +43,21 @@ cp .env.example .env.local
 # Convex env vars will be set automatically in the next step
 ```
 
-3. Push the auth schema to your postgres database:
-
-```bash
-bun run push-auth-schema
-```
-
-2. Start the Convex development server and the Next.js development server:
+3. Setup Convex dev server:
 
 ```bash
 bun run dev:convex
+```
+
+4. Setup Convex Auth:
+
+```bash
+bunx @convex-dev/auth
+# Follow the Next.js auth guide in https://labs.convex.dev/auth/setup to setup Convex Auth with Google oauth
+```
+
+5. Start the Next.js development server:
+
+```bash
 bun run dev # app will be available at http://localhost:3000
 ```

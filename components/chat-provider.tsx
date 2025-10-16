@@ -6,12 +6,12 @@ import type { ChatRequest, Model, UIMessageWithMetadata } from '@/lib/types'
 import { useQueryWithStatus } from '@/lib/utils'
 import { useChat, UseChatHelpers } from '@ai-sdk/react'
 import { createIdGenerator, DefaultChatTransport, FileUIPart } from 'ai'
-import type { User } from 'better-auth'
 import { useRouter } from 'next/navigation'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
 import { Button } from './ui/button'
+import { useUser } from './user-provider'
 
 type ChatContextType = {
   input: string
@@ -37,16 +37,9 @@ type ChatContextType = {
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
-export const ChatProvider = ({
-  children,
-  user,
-  paramsChatId,
-}: {
-  children: React.ReactNode
-  user: User | undefined
-  paramsChatId: string
-}) => {
+export const ChatProvider = ({ children, paramsChatId }: { children: React.ReactNode; paramsChatId: string }) => {
   const router = useRouter()
+  const { user } = useUser()
   const { config, chatId, setOpenApiKeyDialog } = useChatConfig()
   const [input, setInput] = useState('')
   const [filesToSend, setFilesToSend] = useState<FileUIPart[]>([])
@@ -56,10 +49,7 @@ export const ChatProvider = ({
     data: initialMessages,
     isPending,
     isError,
-  } = useQueryWithStatus(
-    api.chat.getChatMessages,
-    paramsChatId && user ? { userId: user.id, chatId: paramsChatId } : 'skip'
-  )
+  } = useQueryWithStatus(api.chat.getChatMessages, paramsChatId && user ? { chatId: paramsChatId } : 'skip')
 
   useEffect(() => {
     if (isError) {

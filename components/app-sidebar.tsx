@@ -10,11 +10,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
 import { api } from '@/convex/_generated/api'
-import { authClient } from '@/lib/auth/client'
 import { useQueryWithStatus } from '@/lib/utils'
-import { User } from 'better-auth'
+import { useAuthActions } from '@convex-dev/auth/react'
 import { VariantProps } from 'class-variance-authority'
 import { Key, LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -27,8 +27,11 @@ import { SidebarChatItem } from './sidebar-chat-item'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { useUser } from './user-provider'
 
-export function AppSidebar({ user }: { user: User | undefined }) {
+export function AppSidebar() {
+  const { user, isPending: isUserPending } = useUser()
+  const { signOut } = useAuthActions()
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const { setOpenApiKeyDialog, chatId } = useChatConfig()
@@ -39,7 +42,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
     isSuccess,
     isPending,
     isError,
-  } = useQueryWithStatus(api.chat.getAllChats, user ? { userId: user.id } : 'skip')
+  } = useQueryWithStatus(api.chat.getAllChats, user ? {} : 'skip')
 
   useEffect(() => {
     if (isError) {
@@ -96,7 +99,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
 
       <SidebarContent>
         <SidebarGroup className="flex flex-1 flex-col">
-          {!user ? (
+          {!user && !isUserPending ? (
             <div className="text-muted-foreground mx-auto my-auto flex text-sm">Please login to view your chats.</div>
           ) : isPending || (isSuccess && chats?.length === 0) ? null : (
             <>
@@ -126,13 +129,15 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       </SidebarContent>
 
       <SidebarFooter>
-        {user ? (
+        {isUserPending ? (
+          <SidebarMenuSkeleton showIcon={true} />
+        ) : user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="flex h-12 w-full items-center justify-start gap-3 rounded-lg p-2" variant="ghost">
                 <Avatar>
                   <AvatarImage src={user.image ?? ''} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>{user.name?.charAt(0) ?? ''}</AvatarFallback>
                 </Avatar>
                 <span className="truncate text-sm font-normal">{user.name}</span>
               </Button>
@@ -148,18 +153,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 {theme === 'dark' ? 'Light mode' : 'Dark mode'}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() =>
-                  authClient.signOut({
-                    fetchOptions: {
-                      onSuccess: () => {
-                        router.refresh()
-                      },
-                      onError: ({ error }) => {
-                        toast.error(error.message)
-                      },
-                    },
-                  })
-                }
+                onClick={async () => {
+                  await signOut()
+                  router.push('/')
+                }}
               >
                 <LogOut />
                 Log out
@@ -167,7 +164,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <LoginButton className="flex w-full" variant="outline" size="lg" />
+          <LoginButton className="mb-2 flex w-full" variant="outline" size="lg" />
         )}
       </SidebarFooter>
     </Sidebar>
@@ -183,13 +180,10 @@ export function LoginButton({
   variant: VariantProps<typeof buttonVariants>['variant']
   size: VariantProps<typeof buttonVariants>['size']
 }) {
+  const { signIn } = useAuthActions()
+
   return (
-    <Button
-      className={className}
-      onClick={() => authClient.signIn.social({ provider: 'google' })}
-      size={size}
-      variant={variant}
-    >
+    <Button className={className} onClick={() => void signIn('google')} size={size} variant={variant}>
       <LogIn className="size-5" />
       Sign in
     </Button>

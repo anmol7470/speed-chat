@@ -1,7 +1,7 @@
+import { useUser } from '@/components/user-provider'
 import { api } from '@/convex/_generated/api'
 import { getErrorMessage } from '@/lib/error'
 import type { FileUIPart } from 'ai'
-import { User } from 'better-auth'
 import { useMutation } from 'convex/react'
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
@@ -9,10 +9,10 @@ import { toast } from 'react-hot-toast'
 type UseAttachmentsProps = {
   filesToSend: FileUIPart[]
   setFilesToSend: React.Dispatch<React.SetStateAction<FileUIPart[]>>
-  user: User | undefined
 }
 
-export function useAttachments({ filesToSend, setFilesToSend, user }: UseAttachmentsProps) {
+export function useAttachments({ filesToSend, setFilesToSend }: UseAttachmentsProps) {
+  const { user } = useUser()
   const [filesToUpload, setFilesToUpload] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
 
@@ -50,7 +50,7 @@ export function useAttachments({ filesToSend, setFilesToSend, user }: UseAttachm
 
         const { storageId } = await result.json()
 
-        const url = await storeFile({ fileId: storageId, userId: user.id })
+        const url = await storeFile({ fileId: storageId })
 
         return {
           type: 'file' as const,

@@ -3,7 +3,8 @@ import { ChatConfigProvider } from '@/components/chat-config-provider'
 import { ConvexClientProvider } from '@/components/convex-client-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { getSession } from '@/lib/auth/get-session'
+import { UserProvider } from '@/components/user-provider'
+import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { cookies } from 'next/headers'
@@ -30,25 +31,28 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const session = await getSession()
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen antialiased`}>
-        <ConvexClientProvider>
-          <ChatConfigProvider>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                <AppSidebar user={session?.user} />
-                <SidebarInset>{children}</SidebarInset>
-                <Toaster position="top-center" reverseOrder={false} />
-              </ThemeProvider>
-            </SidebarProvider>
-          </ChatConfigProvider>
-        </ConvexClientProvider>
-      </body>
-    </html>
+    <ConvexAuthNextjsServerProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen antialiased`}>
+          <ConvexClientProvider>
+            <UserProvider>
+              <ChatConfigProvider>
+                <SidebarProvider defaultOpen={defaultOpen}>
+                  <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                    <AppSidebar />
+                    <SidebarInset>{children}</SidebarInset>
+                    <Toaster position="top-center" reverseOrder={false} />
+                  </ThemeProvider>
+                </SidebarProvider>
+              </ChatConfigProvider>
+            </UserProvider>
+          </ConvexClientProvider>
+        </body>
+      </html>
+    </ConvexAuthNextjsServerProvider>
   )
 }
