@@ -69,7 +69,7 @@ export const ChatProvider = ({
     }
   }, [isError, router, paramsChatId])
 
-  const { messages, sendMessage, status, setMessages, stop, regenerate, error, clearError } =
+  const { messages, sendMessage, status, setMessages, stop, regenerate, error, clearError, resumeStream } =
     useChat<UIMessageWithMetadata>({
       id: chatId,
       generateId: createIdGenerator({
@@ -79,7 +79,6 @@ export const ChatProvider = ({
       transport: new DefaultChatTransport({
         api: '/api/chat',
       }),
-      // resume: !!paramsChatId,
       onError: (error) => {
         try {
           const errorData = JSON.parse(error.message)
@@ -164,6 +163,12 @@ export const ChatProvider = ({
     setInput('')
     setFilesToSend([])
   }
+
+  useEffect(() => {
+    if (paramsChatId === chatId) {
+      resumeStream()
+    }
+  }, [paramsChatId, chatId, resumeStream])
 
   return (
     <ChatContext.Provider
