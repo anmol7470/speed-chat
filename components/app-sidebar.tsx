@@ -22,12 +22,14 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useChatConfig } from './chat-config-provider'
 import { SearchDialog } from './search-dialog'
 import { SidebarChatItem } from './sidebar-chat-item'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { Kbd, KbdGroup } from './ui/kbd'
 import { useUser } from './user-provider'
 
 export function AppSidebar() {
@@ -37,6 +39,15 @@ export function AppSidebar() {
   const router = useRouter()
   const { setOpenApiKeyDialog, chatId } = useChatConfig()
   const [openSearchDialog, setOpenSearchDialog] = useState(false)
+
+  useHotkeys('meta+k, ctrl+k', () => setOpenSearchDialog(true), {
+    enableOnFormTags: ['INPUT', 'TEXTAREA', 'SELECT'],
+    enableOnContentEditable: true,
+  })
+  useHotkeys('meta+shift+o, ctrl+shift+o', () => router.push('/'), {
+    enableOnFormTags: ['INPUT', 'TEXTAREA', 'SELECT'],
+    enableOnContentEditable: true,
+  })
 
   const {
     data: chats,
@@ -83,16 +94,31 @@ export function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/">
+                <Link href="/" className="group/button">
                   <PenBox />
-                  New chat
+                  <div className="flex w-full items-center justify-between gap-2">
+                    New chat
+                    <KbdGroup className="opacity-0 group-hover/button:opacity-100">
+                      <Kbd>⌘</Kbd>
+                      <Kbd>⇧</Kbd>
+                      <Kbd>O</Kbd>
+                    </KbdGroup>
+                  </div>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={() => setOpenSearchDialog(true)}>
-                <Search />
-                Search chats
+              <SidebarMenuButton asChild>
+                <button onClick={() => setOpenSearchDialog(true)} className="group/button">
+                  <Search />
+                  <div className="flex w-full items-center justify-between gap-2">
+                    Search chats
+                    <KbdGroup className="opacity-0 group-hover/button:opacity-100">
+                      <Kbd>⌘</Kbd>
+                      <Kbd>K</Kbd>
+                    </KbdGroup>
+                  </div>
+                </button>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
