@@ -31,7 +31,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export function AppSidebar({ user }: { user: User | undefined }) {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
-  const { setOpenApiKeyDialog } = useChatConfig()
+  const { setOpenApiKeyDialog, chatId } = useChatConfig()
 
   const {
     data: chats,
@@ -54,6 +54,16 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   const unpinnedChats = useMemo(() => {
     return chats?.filter((chat) => !chat.isPinned)
   }, [chats])
+
+  const currentChat = useMemo(() => {
+    return chats?.find((chat) => chat.id === chatId)
+  }, [chats, chatId])
+
+  useEffect(() => {
+    if (currentChat) {
+      document.title = `${currentChat.title} | Speed Chat`
+    }
+  }, [currentChat])
 
   return (
     <Sidebar>

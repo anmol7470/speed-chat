@@ -1,10 +1,10 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { getErrorMessage } from '@/lib/error'
+import { formatElapsedTime, groupMessageParts } from '@/lib/format-helpers'
 import { models } from '@/lib/models'
-import { UIMessageWithMetadata, WebSearchToolOutput } from '@/lib/types'
+import { UIMessageWithMetadata } from '@/lib/types'
 import { useMutation } from 'convex/react'
-import { formatDuration, intervalToDuration } from 'date-fns'
 import { Bolt, Bot, Check, Clock, Copy, GitBranch, Info, Loader2, RefreshCw, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
@@ -19,16 +19,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 type AssistantMessageProps = {
   message: UIMessageWithMetadata
   isAnimating: boolean
-}
-
-function formatElapsedTime(seconds: number): string {
-  const duration = intervalToDuration({ start: 0, end: seconds * 1000 })
-
-  if (seconds < 60) {
-    return formatDuration(duration, { format: ['seconds'] })
-  }
-
-  return formatDuration(duration, { format: ['minutes', 'seconds'] })
 }
 
 export function AssistantMessage({ message, isAnimating }: AssistantMessageProps) {
@@ -46,65 +36,46 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
     .map((part) => part.text)
     .join('')
 
-  // Group consecutive reasoning parts together
-  const groupedParts: Array<{ type: 'reasoning-group'; parts: typeof message.parts } | (typeof message.parts)[number]> =
-    []
-  let currentReasoningGroup: typeof message.parts = []
-
-  for (const part of message.parts) {
-    if (part.type === 'reasoning') {
-      currentReasoningGroup.push(part)
-    } else {
-      if (currentReasoningGroup.length > 0) {
-        groupedParts.push({ type: 'reasoning-group', parts: currentReasoningGroup })
-        currentReasoningGroup = []
-      }
-      groupedParts.push(part)
-    }
-  }
-
   return (
     <div className="group">
       <div className="space-y-2 break-words whitespace-pre-wrap">
-        {groupedParts.map((item, index) => {
-          if ('type' in item && item.type === 'reasoning-group') {
-            const reasoningGroup = item.parts
-            const isStreaming = reasoningGroup.some((part) => part.type === 'reasoning' && part.state === 'streaming')
-            const combinedText = reasoningGroup
-              .filter((part) => part.type === 'reasoning')
-              .map((part) => part.text)
-              .join('\n\n')
+        {(() => {
+          const grouped = groupMessageParts(message.parts)
+          const rendered = grouped.map((item, index) => {
+            if (item.kind === 'reasoning') {
+              return (
+                <Reasoning
+                  key={item.groupKey}
+                  className="w-full"
+                  isStreaming={item.isStreaming}
+                  defaultOpen={item.defaultOpen}
+                >
+                  <ReasoningTrigger />
+                  <ReasoningContent>{item.text}</ReasoningContent>
+                </Reasoning>
+              )
+            }
 
-            return (
-              <Reasoning key={index} className="w-full" isStreaming={isStreaming} defaultOpen={isStreaming}>
-                <ReasoningTrigger />
-                <ReasoningContent>{combinedText}</ReasoningContent>
-              </Reasoning>
-            )
-          }
-
-          const part = item as (typeof message.parts)[number]
-          switch (part.type) {
-            case 'text':
+            if (item.kind === 'text') {
               return (
                 <Response isAnimating={isAnimating} key={index}>
-                  {part.text}
+                  {item.part.text}
                 </Response>
               )
-            case 'tool-web_search':
+            }
+
+            if (item.kind === 'web') {
               return (
                 <div
                   key={index}
                   className="border-border/50 bg-muted/30 text-muted-foreground my-4 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
                 >
-                  {part.state === 'output-available' ? (
+                  {item.part.state === 'output-available' ? (
                     <>
                       <Search className="size-4 shrink-0 text-blue-500" />
                       <span>
                         Searched for{' '}
-                        <span className="text-foreground font-medium">
-                          {(part.output as WebSearchToolOutput).action.query}
-                        </span>
+                        <span className="text-foreground font-medium">{item.part.output?.action.query}</span>
                       </span>
                     </>
                   ) : (
@@ -115,10 +86,20 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
                   )}
                 </div>
               )
-            default:
-              return null
-          }
-        })}
+            }
+
+            return null
+          })
+
+          if (rendered.some(Boolean)) return rendered
+
+          return (
+            <div className="text-muted-foreground my-4 flex items-center gap-2 rounded-lg text-sm">
+              <Loader2 className="size-4 shrink-0 animate-spin" />
+              <span>Processing...</span>
+            </div>
+          )
+        })()}
       </div>
       <div className="mt-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <Tooltip>

@@ -4,7 +4,7 @@ import { useAttachments } from '@/hooks/use-attachments'
 import { models } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { User } from 'better-auth'
-import { ArrowUp, Brain, Check, ChevronDown, Globe, Paperclip, Square } from 'lucide-react'
+import { ArrowUp, Brain, ChevronDown, Globe, Paperclip, Square } from 'lucide-react'
 import { useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { useChatConfig } from './chat-config-provider'
@@ -25,9 +25,7 @@ export function ChatInput({ user }: { user: User | undefined }) {
     stop,
     filesToSend,
     setFilesToSend,
-    useReasoning,
     useWebSearch,
-    setUseReasoning,
     setUseWebSearch,
   } = useChatContext()
   const { config, updateConfig, isLoading } = useChatConfig()
@@ -116,17 +114,6 @@ export function ChatInput({ user }: { user: User | undefined }) {
                   Search
                 </Toggle>
               )}
-              {currentModel?.reasoningConfigurable && (
-                <Toggle
-                  pressed={useReasoning}
-                  onPressedChange={(pressed) => setUseReasoning(pressed)}
-                  aria-label="Reasoning"
-                  className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}
-                >
-                  <Brain className="size-4.5" />
-                  Reasoning
-                </Toggle>
-              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" suppressHydrationWarning>
@@ -142,8 +129,8 @@ export function ChatInput({ user }: { user: User | undefined }) {
                         key={m.id}
                         onClick={() => updateConfig({ selectedModelId: m.id })}
                       >
-                        <div className="flex items-center gap-2">{m.name}</div>
-                        {m.id === currentModel?.id && <Check className="size-4" />}
+                        {m.name}
+                        {m.supportsReasoning && <Brain className="size-4" />}
                       </DropdownMenuItem>
                     ))}
                   </div>

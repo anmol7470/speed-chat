@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     })
   }
 
-  const { messages, chatId, model, isNewChat, useReasoning, useWebSearch } = parsedBody.data
+  const { messages, chatId, model, isNewChat, useWebSearch } = parsedBody.data
 
   const headers = request.headers
   const apiKey = headers.get('x-api-key')
@@ -97,15 +97,14 @@ export async function POST(request: Request) {
 
     const response = streamText({
       model: openai(model.id),
-      ...(model.supportsReasoning &&
-        (!model.reasoningConfigurable || useReasoning) && {
-          providerOptions: {
-            openai: {
-              reasoningEffort: 'medium',
-              reasoningSummary: 'detailed',
-            } satisfies OpenAIResponsesProviderOptions,
-          },
-        }),
+      ...(model.supportsReasoning && {
+        providerOptions: {
+          openai: {
+            reasoningEffort: 'medium',
+            reasoningSummary: 'detailed',
+          } satisfies OpenAIResponsesProviderOptions,
+        },
+      }),
       system: chatSystemPrompt(model.name),
       messages: convertToModelMessages(messages),
       experimental_transform: smoothStream({
@@ -113,7 +112,7 @@ export async function POST(request: Request) {
       }),
       stopWhen: stepCountIs(10),
       tools: {
-        ...(useWebSearch && model.supportsWebSearchTool && { web_search: openai.tools.webSearch() }),
+        ...(model.supportsWebSearchTool && { web_search: openai.tools.webSearch() }),
       },
       ...(useWebSearch && model.supportsWebSearchTool && { toolChoice: { type: 'tool', toolName: 'web_search' } }), // force web_search tool when web search is enabled
     })
@@ -128,7 +127,7 @@ export async function POST(request: Request) {
         if (part.type === 'finish') {
           const usage = part.totalUsage
           const endTime = Date.now()
-          const elapsedTime = (endTime - startTime) / 1000 // convert milliseconds to seconds
+          const elapsedTime = (endTime - startTime) / 1000
           const outputTokens = (usage?.outputTokens ?? 0) + (usage?.reasoningTokens ?? 0) // total tokens includes input + system prompt too so using this instead
 
           const metadata: MessageMetadata = {

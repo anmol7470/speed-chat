@@ -5,6 +5,7 @@ export type ModelId =
   | 'gpt-5-2025-08-07'
   | 'gpt-5-mini-2025-08-07'
   | 'gpt-5-nano-2025-08-07'
+  | 'gpt-4.1-2025-04-14'
   | 'gpt-5-chat-latest'
   | 'chatgpt-4o-latest'
 
@@ -13,7 +14,6 @@ export type Model = {
   name: string
   default: boolean
   supportsReasoning: boolean
-  reasoningConfigurable: boolean
   supportsWebSearchTool: boolean
 }
 
@@ -37,14 +37,7 @@ export const ChatRequestSchema = z.object({
   chatId: z.string(),
   model: z.custom<Model>(),
   isNewChat: z.boolean(),
-  useReasoning: z.boolean(),
   useWebSearch: z.boolean(),
 })
 
 export type ChatRequest = z.infer<typeof ChatRequestSchema>
-
-export type WebSearchToolOutput = {
-  action: {
-    query: string
-  }
-}

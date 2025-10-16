@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Speed Chat',
-  description: 'An AI chatbot like ChatGPT supporting multiple models',
+  description: 'An AI chatbot like ChatGPT',
 }
 
 export default async function RootLayout({

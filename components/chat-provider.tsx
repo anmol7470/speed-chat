@@ -32,8 +32,6 @@ type ChatContextType = {
     body: { chatId: string; model: Model | undefined; isNewChat: boolean }
     headers: { 'x-api-key': string }
   }
-  useReasoning: boolean
-  setUseReasoning: (useReasoning: boolean) => void
   useWebSearch: boolean
   setUseWebSearch: (useWebSearch: boolean) => void
 }
@@ -53,7 +51,6 @@ export const ChatProvider = ({
   const { config, chatId, setOpenApiKeyDialog } = useChatConfig()
   const [input, setInput] = useState('')
   const [filesToSend, setFilesToSend] = useState<FileUIPart[]>([])
-  const [useReasoning, setUseReasoning] = useState(false)
   const [useWebSearch, setUseWebSearch] = useState(false)
 
   const {
@@ -107,7 +104,6 @@ export const ChatProvider = ({
       body: {
         chatId,
         model: models.find((m) => m.id === config.selectedModelId)!,
-        useReasoning,
         useWebSearch,
         isNewChat: isFirstMessage,
       } satisfies Omit<ChatRequest, 'messages'>,
@@ -115,7 +111,7 @@ export const ChatProvider = ({
         'x-api-key': config.apiKey,
       },
     }
-  }, [chatId, config, messages, useReasoning, useWebSearch])
+  }, [chatId, config, messages, useWebSearch])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -187,8 +183,6 @@ export const ChatProvider = ({
         error,
         clearError,
         buildBodyAndHeaders,
-        useReasoning,
-        setUseReasoning,
         useWebSearch,
         setUseWebSearch,
       }}
