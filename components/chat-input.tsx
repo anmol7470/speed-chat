@@ -14,6 +14,7 @@ import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Textarea } from './ui/textarea'
 import { Toggle } from './ui/toggle'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export function ChatInput({
   isDragActive,
@@ -35,6 +36,8 @@ export function ChatInput({
     setFilesToSend,
     useWebSearch,
     setUseWebSearch,
+    useReasoning,
+    setUseReasoning,
   } = useChatContext()
   const { config, updateConfig, isLoading } = useChatConfig()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -80,7 +83,7 @@ export function ChatInput({
       )}
       <Textarea
         autoFocus
-        className="placeholder:text-muted-foreground max-h-[200px] min-h-[80px] w-full resize-none border-0 !bg-transparent px-1 !text-[15px] shadow-none focus-visible:ring-0"
+        className="placeholder:text-muted-foreground max-h-[120px] min-h-[60px] w-full resize-none border-0 !bg-transparent px-1 !text-[15px] shadow-none focus-visible:ring-0"
         onChange={handleInputChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
@@ -88,27 +91,35 @@ export function ChatInput({
             e.currentTarget.form?.requestSubmit()
           }
         }}
-        placeholder="Ask anything"
+        placeholder="Ask anything..."
         ref={inputRef}
         value={input}
       />
-      <div className="flex justify-between px-1 pt-2">
+      <div className="flex items-center justify-between px-1 pt-2">
         <div className="flex items-center gap-1">
-          <Button
-            onClick={() => {
-              if (user) {
-                fileInputRef.current?.click()
-              } else {
-                toast.error('Please sign in to attach files')
-              }
-            }}
-            size="icon-sm"
-            type="button"
-            variant="ghost"
-          >
-            <Paperclip className="size-5" />
-            <span className="sr-only">Attach files</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => {
+                  if (user) {
+                    fileInputRef.current?.click()
+                  } else {
+                    toast.error('Please sign in to attach files')
+                  }
+                }}
+                size="icon-sm"
+                type="button"
+                variant="ghost"
+                className="rounded-full font-normal"
+              >
+                <Paperclip className="size-5" />
+                <span className="sr-only">Attach files</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Attach files</p>
+            </TooltipContent>
+          </Tooltip>
           <input
             accept="image/*, application/pdf"
             className="hidden"
@@ -117,56 +128,85 @@ export function ChatInput({
             ref={fileInputRef}
             type="file"
           />
-          {!isLoading && (
-            <>
-              {currentModel?.supportsWebSearchTool && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
                 <Toggle
                   pressed={useWebSearch}
                   onPressedChange={(pressed) => setUseWebSearch(pressed)}
                   aria-label="Web search"
                   className={cn(
                     buttonVariants({ variant: 'ghost', size: 'sm' }),
-                    '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent'
+                    '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent rounded-full'
                   )}
                 >
                   <Globe className="size-4.5" />
                   Search
                 </Toggle>
-              )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" suppressHydrationWarning>
-                    {currentModel?.name}
-                    <ChevronDown className="text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48 rounded-xl p-2">
-                  <div className="flex flex-col gap-1">
-                    {models.map((m) => (
-                      <DropdownMenuItem
-                        className="flex items-center justify-between gap-2 rounded-lg py-2"
-                        key={m.id}
-                        onClick={() => updateConfig({ selectedModelId: m.id })}
-                      >
-                        {m.name}
-                        {m.supportsReasoning && <Brain className="size-4" />}
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{useWebSearch ? 'Disable' : 'Enable'} web search</p>
+            </TooltipContent>
+          </Tooltip>
+          {!isLoading && currentModel?.reasoningConfigurable && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Toggle
+                    pressed={useReasoning}
+                    onPressedChange={(pressed) => setUseReasoning(pressed)}
+                    aria-label="Reasoning"
+                    className={cn(
+                      buttonVariants({ variant: 'ghost', size: 'sm' }),
+                      '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent rounded-full'
+                    )}
+                  >
+                    <Brain className="size-4.5" />
+                    Reasoning
+                  </Toggle>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{useReasoning ? 'Disable' : 'Enable'} reasoning</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
-        <Button
-          className="rounded-full"
-          disabled={(status === 'ready' && !input.trim()) || isStreaming}
-          size="icon-sm"
-          type="submit"
-        >
-          {isStreaming ? <Loader2 className="size-5 animate-spin" /> : <ArrowUp className="size-5" />}
-          <span className="sr-only">Send message</span>
-        </Button>
+        <div className="flex items-center gap-1">
+          {!isLoading && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="rounded-full" suppressHydrationWarning>
+                  {currentModel?.name}
+                  <ChevronDown className="text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 rounded-xl p-2" align="end">
+                <div className="flex flex-col gap-1">
+                  {models.map((m) => (
+                    <DropdownMenuItem
+                      className="flex items-center justify-between gap-2 rounded-lg"
+                      key={m.id}
+                      onClick={() => updateConfig({ selectedModelId: m.id })}
+                    >
+                      {m.name}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <Button
+            className="rounded-full"
+            disabled={(status === 'ready' && !input.trim()) || isStreaming}
+            size="icon-sm"
+            type="submit"
+          >
+            {isStreaming ? <Loader2 className="size-5 animate-spin" /> : <ArrowUp className="size-5" />}
+            <span className="sr-only">Send message</span>
+          </Button>
+        </div>
       </div>
     </form>
   )

@@ -31,8 +31,6 @@ const schema = defineSchema({
     metadata: v.optional(
       v.object({
         modelId: v.string(),
-        elapsedTime: v.number(),
-        completionTokens: v.number(),
       })
     ),
     role: v.union(v.literal('system'), v.literal('user'), v.literal('assistant')),

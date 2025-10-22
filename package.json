@@ -13,10 +13,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.52",
     "@ai-sdk/react": "^2.0.71",
     "@auth/core": "0.37.0",
     "@convex-dev/auth": "^0.0.90",
+    "@openrouter/ai-sdk-provider": "^1.2.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -36,6 +36,7 @@
     "convex": "^1.28.0",
     "convex-helpers": "^0.1.104",
     "date-fns": "^4.1.0",
+    "exa-js": "^1.10.2",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.545.0",
     "nanoid": "^5.1.6",

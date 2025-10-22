@@ -39,19 +39,19 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Configure API Key</DialogTitle>
-          <DialogDescription>Enter your OpenAI API key.</DialogDescription>
+          <DialogDescription>Enter your OpenRouter API key.</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium" htmlFor="openai-key">
-              OpenAI API Key
+            <Label className="text-sm font-medium" htmlFor="openrouter-key">
+              OpenRouter API Key
             </Label>
             <Input
               autoComplete="off"
-              id="openai-key"
+              id="openrouter-key"
               onChange={(e) => setLocalKey(e.target.value)}
-              placeholder="sk-proj-..."
+              placeholder="sk-or-v1-..."
               type="password"
               value={localKey}
             />
@@ -59,11 +59,11 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
               Get your API key from{' '}
               <a
                 className="text-blue-500 hover:underline"
-                href="https://platform.openai.com/settings/organization/api-keys"
+                href="https://openrouter.ai/settings/keys"
                 rel="noreferrer"
                 target="_blank"
               >
-                OpenAI
+                OpenRouter
               </a>
             </p>
           </div>
@@ -77,7 +77,7 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
             className="ml-auto"
             disabled={isSaveDisabled}
             onClick={() => {
-              if (!localKey.startsWith('sk-proj-')) {
+              if (!localKey.startsWith('sk-or-v1-')) {
                 toast.error('Please use a valid API key')
                 return
               }

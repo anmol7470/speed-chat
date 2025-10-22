@@ -1,19 +1,31 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { getErrorMessage } from '@/lib/error'
-import { formatElapsedTime, groupMessageParts } from '@/lib/format-helpers'
 import { models } from '@/lib/models'
 import { UIMessageWithMetadata } from '@/lib/types'
+import { WebSearchToolInput, WebSearchToolOutput } from '@/lib/web-search-tool'
 import { useMutation } from 'convex/react'
-import { Bolt, Bot, Check, Clock, Copy, GitBranch, Info, Loader2, RefreshCw, Search } from 'lucide-react'
+import {
+  AlertCircle,
+  Brain,
+  Check,
+  ChevronDown,
+  Copy,
+  ExternalLink,
+  GitBranch,
+  Loader2,
+  RefreshCw,
+  Search,
+} from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { toast } from 'react-hot-toast'
-import { Reasoning, ReasoningContent, ReasoningTrigger } from './ai-elements/reasoning'
 import { Response } from './ai-elements/response'
 import { useChatConfig } from './providers/chat-config-provider'
 import { useChatContext } from './providers/chat-provider'
 import { Button } from './ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 type AssistantMessageProps = {
@@ -26,6 +38,8 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
   const { isCopied, copyToClipboard } = useCopyToClipboard()
   const { chatId } = useChatConfig()
   const { regenerate, messages: allMessages, buildBodyAndHeaders } = useChatContext()
+  const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false)
+  const [isReasoningOpen, setIsReasoningOpen] = useState(false)
 
   const deleteMessages = useMutation(api.delete.deleteMessages)
   const branchOffFromMessage = useMutation(api.chatActions.branchOffFromMessage)
@@ -39,69 +53,114 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
   return (
     <div className="group">
       <div className="space-y-2 break-words whitespace-pre-wrap">
-        {(() => {
-          const grouped = groupMessageParts(message.parts)
-          const rendered = grouped.map((item, index) => {
-            if (item.kind === 'reasoning') {
+        {message.parts.map((part) => {
+          const id = `${message.id}-${part.type}`
+          switch (part.type) {
+            case 'reasoning':
               return (
-                <Reasoning
-                  key={item.groupKey}
-                  className="w-full"
-                  isStreaming={item.isStreaming}
-                  defaultOpen={item.defaultOpen}
-                >
-                  <ReasoningTrigger />
-                  <ReasoningContent>{item.text}</ReasoningContent>
-                </Reasoning>
-              )
-            }
-
-            if (item.kind === 'text') {
-              return (
-                <Response isAnimating={isAnimating} key={index}>
-                  {item.part.text}
-                </Response>
-              )
-            }
-
-            if (item.kind === 'web') {
-              return (
-                <div
-                  key={index}
-                  className="border-border/50 bg-muted/30 text-muted-foreground my-4 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
-                >
-                  {item.part.state === 'output-available' ? (
-                    <>
-                      <Search className="size-4 shrink-0 text-blue-500" />
-                      <span>
-                        Searched for{' '}
-                        <span className="text-foreground font-medium">{item.part.output?.action.query}</span>
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Loader2 className="size-4 shrink-0 animate-spin text-blue-500" />
-                      <span>Searching the web...</span>
-                    </>
-                  )}
+                <div key={id} className="mb-6 w-full space-y-3">
+                  <Collapsible open={isReasoningOpen} onOpenChange={setIsReasoningOpen}>
+                    <CollapsibleTrigger className="text-muted-foreground flex w-full items-center justify-between text-sm font-normal hover:bg-transparent">
+                      <div className="flex items-center gap-2">
+                        <Brain className="text-primary size-4" />
+                        <span>{part.state === 'streaming' ? 'Reasoning' : 'View reasoning'}</span>
+                      </div>
+                      <ChevronDown className={`size-4 transition-transform ${isReasoningOpen ? 'rotate-180' : ''}`} />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="text-muted-foreground w-full space-y-2 pt-4 text-sm">
+                      <Response isAnimating={isAnimating}>{part.text}</Response>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
               )
-            }
+            case 'text':
+              return (
+                <Response key={id} isAnimating={isAnimating}>
+                  {part.text}
+                </Response>
+              )
+            case 'tool-web_search':
+              const webSearchToolInput = part.input as WebSearchToolInput
+              const webSearchToolOutput = part.output as WebSearchToolOutput
 
-            return null
-          })
-
-          if (rendered.some(Boolean)) return rendered
-
-          return (
-            <div className="text-muted-foreground my-4 flex items-center gap-2 rounded-lg text-sm">
-              <Loader2 className="size-4 shrink-0 animate-spin" />
-              <span>Processing...</span>
-            </div>
-          )
-        })()}
+              switch (part.state) {
+                case 'input-available':
+                  return (
+                    <div
+                      key={id}
+                      className="border-border/50 bg-muted/30 text-muted-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                    >
+                      <Loader2 className="size-4 shrink-0 animate-spin text-blue-500" />
+                      <span>Searching the web for &ldquo;{webSearchToolInput.query}&rdquo;</span>
+                    </div>
+                  )
+                case 'output-available':
+                  return (
+                    <div key={id} className="mb-6 w-full space-y-3">
+                      <Collapsible open={isSearchResultsOpen} onOpenChange={setIsSearchResultsOpen}>
+                        <CollapsibleTrigger className="text-muted-foreground flex w-full items-center justify-between text-sm font-normal hover:bg-transparent">
+                          <div className="flex items-center gap-2">
+                            <Search className="text-primary size-4" />
+                            <span>
+                              Searched for{' '}
+                              <span className="text-foreground font-medium">
+                                &ldquo;{webSearchToolInput.query}&rdquo;
+                              </span>
+                            </span>
+                          </div>
+                          <ChevronDown
+                            className={`size-4 transition-transform ${isSearchResultsOpen ? 'rotate-180' : ''}`}
+                          />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="w-full space-y-2 pt-2">
+                          {webSearchToolOutput.map((result, index) => (
+                            <Link
+                              key={result.id || index}
+                              href={result.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="border-border/50 bg-muted/30 hover:bg-muted/50 block w-full rounded-lg border p-3 transition-colors"
+                            >
+                              <div className="flex items-start gap-3">
+                                {/* Content */}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h4 className="text-foreground line-clamp-2 text-sm font-medium">{result.title}</h4>
+                                    {result.publishedDate && (
+                                      <span className="text-muted-foreground flex-shrink-0 text-xs">
+                                        {new Date(result.publishedDate).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{result.snippet}</p>
+                                  <div className="text-muted-foreground mt-2 flex items-center gap-1 text-xs">
+                                    <span className="truncate text-blue-500 dark:text-blue-400">{result.url}</span>
+                                    <ExternalLink className="size-3 flex-shrink-0" />
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
+                  )
+                case 'output-error':
+                  return (
+                    <div
+                      key={id}
+                      className="border-border/50 bg-muted/30 text-muted-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                    >
+                      <AlertCircle className="size-4 shrink-0 text-red-500" />
+                      <span>Error searching the web for &ldquo;{webSearchToolInput.query}&rdquo;</span>
+                    </div>
+                  )
+              }
+              return null
+          }
+        })}
       </div>
-      <div className="mt-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+      <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon-sm" type="button" onClick={() => copyToClipboard(messageContent)}>
@@ -165,40 +224,10 @@ export function AssistantMessage({ message, isAnimating }: AssistantMessageProps
           <TooltipContent>Branch</TooltipContent>
         </Tooltip>
         {message.metadata && (
-          <Tooltip>
-            <Popover>
-              <PopoverTrigger asChild>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    type="button"
-                    className="opacity-0 transition-opacity group-hover:opacity-100"
-                  >
-                    <Info className="size-4" />
-                    <span className="sr-only">Message info</span>
-                  </Button>
-                </TooltipTrigger>
-              </PopoverTrigger>
-              <PopoverContent className="w-fit p-3 text-xs">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Bot className="text-muted-foreground size-4" />
-                    <span>{models.find((model) => model.id === message.metadata?.modelId)?.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Bolt className="text-muted-foreground size-4" />
-                    <span>{message.metadata.completionTokens} tokens</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="text-muted-foreground size-4" />
-                    <span>{formatElapsedTime(message.metadata.elapsedTime)}</span>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-            <TooltipContent>Message info</TooltipContent>
-          </Tooltip>
+          <span className="text-muted-foreground text-xs">
+            Generated by{' '}
+            <span className="font-medium">{models.find((model) => model.id === message.metadata?.modelId)?.name}</span>
+          </span>
         )}
       </div>
     </div>

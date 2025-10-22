@@ -3,8 +3,9 @@ import { getErrorMessage } from '@/lib/error'
 import { chatSystemPrompt } from '@/lib/prompts'
 import { getStreamContext } from '@/lib/stream-context'
 import { ChatRequestSchema, MessageMetadata } from '@/lib/types'
-import { createOpenAI, OpenAIResponsesProviderOptions } from '@ai-sdk/openai'
+import { webSearchTool } from '@/lib/web-search-tool'
 import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server'
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, streamText } from 'ai'
 import { fetchAction, fetchMutation } from 'convex/nextjs'
 import { nanoid } from 'nanoid'
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
     })
   }
 
-  const openai = createOpenAI({
+  const openrouter = createOpenRouter({
     apiKey: apiKey,
   })
 
@@ -87,16 +88,13 @@ export async function POST(request: Request) {
       console.error('Failed to upsert user message:', getErrorMessage(error))
     })
 
-    const startTime = Date.now()
-
     const response = streamText({
-      model: openai(model.id),
-      ...(model.supportsReasoning && {
-        providerOptions: {
-          openai: {
-            reasoningEffort: 'medium',
-            reasoningSummary: 'detailed',
-          } satisfies OpenAIResponsesProviderOptions,
+      model: openrouter(model.id, {
+        extraBody: {
+          include_reasoning: true,
+          reasoning: {
+            enabled: true,
+          },
         },
       }),
       system: chatSystemPrompt(model.name),
@@ -106,9 +104,9 @@ export async function POST(request: Request) {
       }),
       stopWhen: stepCountIs(10),
       tools: {
-        ...(model.supportsWebSearchTool && { web_search: openai.tools.webSearch() }),
+        web_search: webSearchTool,
       },
-      ...(useWebSearch && model.supportsWebSearchTool && { toolChoice: { type: 'tool', toolName: 'web_search' } }), // force web_search tool when web search is enabled
+      toolChoice: useWebSearch ? 'required' : 'auto', // force web_search tool when web search is enabled
     })
 
     return response.toUIMessageStreamResponse({
@@ -117,21 +115,12 @@ export async function POST(request: Request) {
           prefix: 'assistant',
           size: 16,
         })(),
-      messageMetadata: ({ part }) => {
-        if (part.type === 'finish') {
-          const usage = part.totalUsage
-          const endTime = Date.now()
-          const elapsedTime = (endTime - startTime) / 1000
-          const outputTokens = (usage?.outputTokens ?? 0) + (usage?.reasoningTokens ?? 0) // total tokens includes input + system prompt too so using this instead
-
-          const metadata: MessageMetadata = {
-            modelId: model.id,
-            elapsedTime,
-            completionTokens: outputTokens,
-          }
-
-          return metadata
+      messageMetadata: () => {
+        const metadata: MessageMetadata = {
+          modelId: model.id,
         }
+
+        return metadata
       },
       onFinish: async ({ responseMessage }) => {
         await fetchMutation(

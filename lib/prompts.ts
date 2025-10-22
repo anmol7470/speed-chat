@@ -30,8 +30,7 @@ export const chatSystemPrompt = (modelName: string) => `
 You are ${modelName}, a helpful AI assistant. Be friendly, professional, and concise in your responses.
 Provide accurate information and admit when you're uncertain about something.
 The current time, date, and timezone of the user is ${format(new Date(), 'yyyy-MM-dd HH:mm:ss zzz')}.
-You have access to a web_search tool which allows you to search the web for information.
-Use this tool when appropriate to provide the most up-to-date and accurate information.
+You have access to a web_search tool which allows you to search the web for information. Use this tool when appropriate to provide the most up-to-date and accurate information.
 Output code blocks in markdown with language tags.
 Output math as LaTeX and inline math wrapped in $$.
 `

@@ -72,8 +72,8 @@ export function AppSidebar() {
   }, [currentChat])
 
   return (
-    <Sidebar>
-      <SidebarHeader className="mt-1 flex flex-col items-center">
+    <Sidebar variant="inset" className="px-1">
+      <SidebarHeader className="flex flex-col items-center">
         <Link className="flex items-center gap-2" href="/">
           <div className="flex size-8 items-center justify-center rounded-lg bg-blue-300">
             <MessageSquare className="size-4.5 text-white" />
@@ -152,7 +152,7 @@ export function AppSidebar() {
         ) : user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="flex h-12 w-full items-center justify-start gap-3 rounded-lg p-2" variant="ghost">
+              <Button className="flex h-12 w-full items-center justify-start gap-3 rounded-lg px-2" variant="ghost">
                 <Avatar>
                   <AvatarImage src={user.image ?? ''} />
                   <AvatarFallback>{user.name?.charAt(0) ?? ''}</AvatarFallback>
@@ -182,7 +182,7 @@ export function AppSidebar() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <LoginButton className="mb-1 flex w-full" variant="outline" size="lg" />
+          <LoginButton className="flex w-full" variant="outline" size="lg" />
         )}
       </SidebarFooter>
     </Sidebar>

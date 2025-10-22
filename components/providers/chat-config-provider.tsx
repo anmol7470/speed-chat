@@ -21,7 +21,7 @@ const ChatConfigContext = createContext<ChatConfigContextType | undefined>(undef
 const STORAGE_KEY = 'chat-config'
 
 const getDefaultConfig = (): ChatConfig => ({
-  selectedModelId: models.find((m) => m.default)?.id || 'gpt-5-2025-08-07',
+  selectedModelId: models.find((m) => m.default)?.id || 'google/gemini-2.5-flash',
   apiKey: '',
 })
 

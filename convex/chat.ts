@@ -1,4 +1,4 @@
-import { createOpenAI } from '@ai-sdk/openai'
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, generateText } from 'ai'
 import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { FunctionReturnType } from 'convex/server'
@@ -69,12 +69,12 @@ export const generateChatTitle = authedAction({
     userMessage: v.any(),
   },
   handler: async (ctx, args) => {
-    const openai = createOpenAI({
+    const openrouter = createOpenRouter({
       apiKey: args.apiKey,
     })
 
     const response = await generateText({
-      model: openai('gpt-5-nano-2025-08-07'),
+      model: openrouter('google/gemini-2.5-flash'),
       system: titleGenPrompt,
       messages: convertToModelMessages([args.userMessage as UIMessageWithMetadata]),
     })

@@ -2,23 +2,23 @@ import type { UIMessage } from 'ai'
 import * as z from 'zod'
 
 export type ModelId =
-  | 'gpt-5-2025-08-07'
-  | 'gpt-5-mini-2025-08-07'
-  | 'gpt-5-nano-2025-08-07'
-  | 'gpt-4.1-2025-04-14'
-  | 'gpt-5-chat-latest'
-  | 'chatgpt-4o-latest'
+  | 'google/gemini-2.5-flash'
+  | 'google/gemini-2.5-pro'
+  | 'anthropic/claude-sonnet-4.5'
+  | 'openai/gpt-5'
+  | 'openai/gpt-5-chat'
+  | 'x-ai/grok-4-fast'
 
 export type Model = {
   id: ModelId
   name: string
   default: boolean
   supportsReasoning: boolean
-  supportsWebSearchTool: boolean
+  reasoningConfigurable: boolean
 }
 
 export const ChatConfigSchema = z.object({
-  selectedModelId: z.custom<ModelId>(),
+  selectedModelId: z.custom<ModelId>(), // to load last used model on page load
   apiKey: z.string(),
 })
 
@@ -26,8 +26,6 @@ export type ChatConfig = z.infer<typeof ChatConfigSchema>
 
 export type MessageMetadata = {
   modelId: ModelId
-  elapsedTime: number
-  completionTokens: number
 }
 
 export type UIMessageWithMetadata = UIMessage<MessageMetadata>
@@ -38,6 +36,7 @@ export const ChatRequestSchema = z.object({
   model: z.custom<Model>(),
   isNewChat: z.boolean(),
   useWebSearch: z.boolean(),
+  useReasoning: z.boolean(),
 })
 
 export type ChatRequest = z.infer<typeof ChatRequestSchema>
