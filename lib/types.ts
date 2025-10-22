@@ -6,7 +6,6 @@ export type ModelId =
   | 'google/gemini-2.5-pro'
   | 'anthropic/claude-sonnet-4.5'
   | 'openai/gpt-5'
-  | 'openai/gpt-5-chat'
   | 'x-ai/grok-4-fast'
 
 export type Model = {

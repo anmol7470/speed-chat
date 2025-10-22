@@ -26,13 +26,6 @@ export const models: Model[] = [
     id: 'openai/gpt-5',
     name: 'GPT-5',
     supportsReasoning: true,
-    reasoningConfigurable: true,
-    default: false,
-  },
-  {
-    id: 'openai/gpt-5-chat',
-    name: 'GPT-5 Chat',
-    supportsReasoning: false,
     reasoningConfigurable: false,
     default: false,
   },

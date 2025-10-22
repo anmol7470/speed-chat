@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     })
   }
 
-  const { messages, chatId, model, isNewChat, useWebSearch } = parsedBody.data
+  const { messages, chatId, model, isNewChat, useWebSearch, useReasoning } = parsedBody.data
 
   const headers = request.headers
   const apiKey = headers.get('x-api-key')
@@ -91,10 +91,7 @@ export async function POST(request: Request) {
     const response = streamText({
       model: openrouter(model.id, {
         extraBody: {
-          include_reasoning: true,
-          reasoning: {
-            enabled: true,
-          },
+          include_reasoning: model.supportsReasoning && model.reasoningConfigurable ? useReasoning : true,
         },
       }),
       system: chatSystemPrompt(model.name),

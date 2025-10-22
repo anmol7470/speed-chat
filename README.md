@@ -1,12 +1,12 @@
 # Speed Chat
 
-An AI chat application built with Next.js 15, Convex, and AI SDK v5, featuring multiple AI models from OpenAI, file (images and PDFs) upload support, web search, and resumable streams.
+An AI chat application built with Next.js 15, Convex, and AI SDK v5, featuring multiple AI models via OpenRouter, file (images and PDFs) upload support, web search, and resumable streams.
 
 ## 🚀 Features
 
-- **Multiple AI Models** - Support for multiple OpenAI models
+- **Multiple AI Models** - Support for multiple models via OpenRouter
 - **Web Search Integration** - Enhanced responses with real-time web search using Exa API
-- **Image Upload Support** - Upload and send images and PDFs with your messages
+- **File Upload Support** - Upload and send images and PDFs with your messages
 - **Persistent Chat History** - Fully synced chat history to use across devices
 - **Branching Conversations** - Create a new chat from an existing message in a chat
 - **Search Chats** - Search through your chat history and messages
@@ -25,6 +25,7 @@ An AI chat application built with Next.js 15, Convex, and AI SDK v5, featuring m
 - [shadcn/ui](https://ui.shadcn.com) - Modern component library built on Radix UI
 - [resumable-stream](https://github.com/vercel/resumable-stream) - Resumable streams for AI SDK
 - [Exa API](https://exa.ai) - Web search API
+- [OpenRouter](https://openrouter.ai) - Unified API routing for LLMs
 
 ## 📦 Getting Started
 
