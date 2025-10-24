@@ -64,7 +64,7 @@ export function ChatInput({
   return (
     <form
       className={cn(
-        'border-border bg-background mx-auto w-full max-w-3xl rounded-xl border p-2 px-4 shadow-xs transition-colors sm:px-2',
+        'border-border bg-input/30 mx-auto w-full max-w-3xl rounded-xl border p-2 px-4 shadow-xs transition-colors sm:px-2',
         isDragActive && 'border-primary'
       )}
       onSubmit={(e) => {
@@ -109,7 +109,7 @@ export function ChatInput({
                 }}
                 size="icon-sm"
                 type="button"
-                variant="ghost"
+                variant="outline"
                 className="rounded-full font-normal"
               >
                 <Paperclip className="size-5" />
@@ -134,14 +134,14 @@ export function ChatInput({
                 <Toggle
                   pressed={useWebSearch}
                   onPressedChange={(pressed) => setUseWebSearch(pressed)}
-                  aria-label="Web search"
+                  aria-label="Search"
                   className={cn(
-                    buttonVariants({ variant: 'ghost', size: 'sm' }),
+                    buttonVariants({ variant: 'outline', size: 'sm' }),
                     '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent rounded-full'
                   )}
                 >
                   <Globe className="size-4.5" />
-                  Search
+                  <span className="hidden md:block">Search</span>
                 </Toggle>
               </div>
             </TooltipTrigger>
@@ -158,12 +158,12 @@ export function ChatInput({
                     onPressedChange={(pressed) => setUseReasoning(pressed)}
                     aria-label="Reasoning"
                     className={cn(
-                      buttonVariants({ variant: 'ghost', size: 'sm' }),
+                      buttonVariants({ variant: 'outline', size: 'sm' }),
                       '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent rounded-full'
                     )}
                   >
                     <Brain className="size-4.5" />
-                    Reasoning
+                    <span className="hidden md:block">Reasoning</span>
                   </Toggle>
                 </div>
               </TooltipTrigger>
@@ -177,7 +177,7 @@ export function ChatInput({
           {!isLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="rounded-full" suppressHydrationWarning>
+                <Button variant="outline" size="sm" className="rounded-full" suppressHydrationWarning>
                   {currentModel?.name}
                   <ChevronDown className="text-muted-foreground" />
                 </Button>

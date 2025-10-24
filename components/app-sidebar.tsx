@@ -16,8 +16,8 @@ import { api } from '@/convex/_generated/api'
 import { useQueryWithStatus } from '@/lib/utils'
 import { useAuthActions } from '@convex-dev/auth/react'
 import { VariantProps } from 'class-variance-authority'
-import { Key, LogIn, LogOut, MessageSquare, Moon, PenBox, Search, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { Key, LogIn, LogOut, MessageSquare, PenBox, Search } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
@@ -26,7 +26,6 @@ import { useChatConfig } from './providers/chat-config-provider'
 import { useDialogs } from './providers/dialogs-provider'
 import { useUser } from './providers/user-provider'
 import { SidebarChatItem } from './sidebar-chat-item'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Kbd, KbdGroup } from './ui/kbd'
@@ -34,7 +33,6 @@ import { Kbd, KbdGroup } from './ui/kbd'
 export function AppSidebar() {
   const { user, isPending: isUserPending } = useUser()
   const { signOut } = useAuthActions()
-  const { theme, setTheme } = useTheme()
   const router = useRouter()
   const { chatId } = useChatConfig()
   const { setOpenSearchDialog, setOpenApiKeyDialog } = useDialogs()
@@ -153,10 +151,7 @@ export function AppSidebar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="flex h-12 w-full items-center justify-start gap-3 rounded-lg px-2" variant="ghost">
-                <Avatar>
-                  <AvatarImage src={user.image ?? ''} />
-                  <AvatarFallback>{user.name?.charAt(0) ?? ''}</AvatarFallback>
-                </Avatar>
+                <Image src={user.image ?? ''} alt={user.name ?? ''} width={30} height={30} className="rounded-full" />
                 <span className="truncate text-sm font-normal">{user.name}</span>
               </Button>
             </DropdownMenuTrigger>
@@ -164,11 +159,6 @@ export function AppSidebar() {
               <DropdownMenuItem onClick={() => setOpenApiKeyDialog(true)}>
                 <Key />
                 Configure API Key
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                <Sun className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                <Moon className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={async () => {

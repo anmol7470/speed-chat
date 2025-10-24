@@ -49,6 +49,11 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
             onChange={(e) => setNewChatTitle(e.target.value)}
             onKeyDown={async (e) => {
               if (e.key === 'Enter') {
+                if (!newChatTitle.trim()) {
+                  toast.error('Chat title cannot be empty')
+                  return
+                }
+
                 try {
                   await renameChatTitle({
                     chatId: chat.id,
