@@ -137,7 +137,7 @@ export function ChatInput({
                   aria-label="Search"
                   className={cn(
                     buttonVariants({ variant: 'outline', size: 'sm' }),
-                    '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent rounded-full'
+                    '[&[data-state=on]]:bg-primary/5 hover:[&[data-state=on]]:bg-primary/5 [&[data-state=on]]:text-foreground dark:[&[data-state=on]]:bg-input dark:hover:[&[data-state=on]]:bg-input rounded-full'
                   )}
                 >
                   <Globe className="size-4.5" />
@@ -159,7 +159,7 @@ export function ChatInput({
                     aria-label="Reasoning"
                     className={cn(
                       buttonVariants({ variant: 'outline', size: 'sm' }),
-                      '[&[data-state=on]]:bg-accent [&[data-state=on]]:text-foreground dark:hover:[&[data-state=on]]:bg-accent rounded-full'
+                      '[&[data-state=on]]:bg-primary/5 hover:[&[data-state=on]]:bg-primary/5 [&[data-state=on]]:text-foreground dark:[&[data-state=on]]:bg-input dark:hover:[&[data-state=on]]:bg-input rounded-full'
                     )}
                   >
                     <Brain className="size-4.5" />

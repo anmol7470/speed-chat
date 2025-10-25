@@ -3,9 +3,10 @@ import { ConvexError, v } from 'convex/values'
 import { UIMessageWithMetadata } from '../lib/types'
 import { internal } from './_generated/api'
 import { Id } from './_generated/dataModel'
-import { internalMutation, mutation } from './_generated/server'
+import { internalMutation } from './_generated/server'
+import { authedMutation } from './user'
 
-export const deleteMessages = mutation({
+export const deleteMessages = authedMutation({
   args: {
     messageIdsToDelete: v.array(v.string()),
   },
@@ -51,7 +52,7 @@ export const deleteAttachmentsFromMessage = internalMutation({
   },
 })
 
-export const deleteChat = mutation({
+export const deleteChat = authedMutation({
   args: {
     chatId: v.string(),
   },
@@ -79,6 +80,29 @@ export const deleteChat = mutation({
         })
       }
       await ctx.db.delete(message._id)
+    }
+  },
+})
+
+export const deleteAllChats = authedMutation({
+  handler: async (ctx) => {
+    const userChats = await getManyFrom(ctx.db, 'chats', 'by_user_id', ctx.userId, 'userId')
+
+    for (const chat of userChats) {
+      const messages = await getManyFrom(ctx.db, 'messages', 'by_chat_id', chat._id, 'chatId')
+
+      for (const message of messages) {
+        // Delete attachments if message has any
+        if (message.parts && message.parts.length > 0) {
+          await ctx.runMutation(internal.delete.deleteAttachmentsFromMessage, {
+            messageParts: message.parts,
+          })
+        }
+
+        await ctx.db.delete(message._id)
+      }
+
+      await ctx.db.delete(chat._id)
     }
   },
 })

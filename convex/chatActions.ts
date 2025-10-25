@@ -1,9 +1,9 @@
 import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { ConvexError, v } from 'convex/values'
 import { nanoid } from 'nanoid'
-import { mutation } from './_generated/server'
+import { authedMutation } from './user'
 
-export const branchOffFromMessage = mutation({
+export const branchOffFromMessage = authedMutation({
   args: {
     parentChatId: v.string(),
     messageId: v.string(),
@@ -50,7 +50,7 @@ export const branchOffFromMessage = mutation({
   },
 })
 
-export const renameChatTitle = mutation({
+export const renameChatTitle = authedMutation({
   args: {
     chatId: v.string(),
     newTitle: v.string(),
@@ -68,7 +68,7 @@ export const renameChatTitle = mutation({
   },
 })
 
-export const pinChat = mutation({
+export const pinChat = authedMutation({
   args: {
     chatId: v.string(),
     isPinned: v.boolean(),
