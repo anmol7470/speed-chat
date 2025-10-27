@@ -28,12 +28,12 @@ import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
-type BaseAssistantMessageProps = {
+type AssistantMessageProps = {
   message: UIMessageWithMetadata
   isAnimating: boolean
 }
 
-export function BaseAssistantMessage({ message, isAnimating }: BaseAssistantMessageProps) {
+export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageProps) {
   const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false)
   const [isReasoningOpen, setIsReasoningOpen] = useState(false)
 
@@ -146,11 +146,6 @@ export function BaseAssistantMessage({ message, isAnimating }: BaseAssistantMess
       })}
     </div>
   )
-}
-
-type AssistantMessageProps = {
-  message: UIMessageWithMetadata
-  isAnimating: boolean
 }
 
 export function AssistantMessage({ message, isAnimating }: AssistantMessageProps) {
