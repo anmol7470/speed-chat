@@ -30,6 +30,7 @@ export const branchOffFromMessage = authedMutation({
       userId: parentChat.userId,
       isBranch: true,
       isPinned: false,
+      isShared: false,
       parentChatId: parentChat.id,
       updatedAt: Date.now(),
       createdAt: Date.now(),
@@ -83,5 +84,46 @@ export const pinChat = authedMutation({
     await ctx.db.patch(chat._id, {
       isPinned: args.isPinned,
     })
+  },
+})
+
+// Basically same as branch but copies the whole chat into a new one
+export const forkChat = authedMutation({
+  args: {
+    chatId: v.string(),
+    newChatId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const originalChat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
+
+    if (!originalChat || !originalChat.isShared) {
+      throw new ConvexError('Chat not found or not shared')
+    }
+
+    // Create new chat for the current user
+    const newChatConvexId = await ctx.db.insert('chats', {
+      id: args.newChatId,
+      userId: ctx.userId,
+      title: originalChat.title,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      isBranch: false,
+      isPinned: false,
+      isShared: false,
+    })
+
+    // Copy all messages from original chat and save to new chat
+    const originalMessages = await getManyFrom(ctx.db, 'messages', 'by_chat_id', originalChat._id, 'chatId')
+
+    for (const message of originalMessages) {
+      await ctx.db.insert('messages', {
+        id: `${message.id}-fork-${args.newChatId}`,
+        chatId: newChatConvexId,
+        metadata: message.metadata,
+        role: message.role,
+        text_part: message.text_part,
+        parts: message.parts,
+      })
+    }
   },
 })

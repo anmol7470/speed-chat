@@ -7,7 +7,7 @@ import { customAlphabet } from 'nanoid'
 import { usePathname } from 'next/navigation'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 
-const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 21)
+export const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 21)
 
 type ChatConfigContextType = {
   config: ChatConfig

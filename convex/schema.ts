@@ -13,6 +13,7 @@ const schema = defineSchema({
     updatedAt: v.number(),
     isBranch: v.boolean(),
     isPinned: v.boolean(),
+    isShared: v.boolean(),
     parentChatId: v.optional(v.string()),
     activeStreamId: v.optional(v.string()),
   })

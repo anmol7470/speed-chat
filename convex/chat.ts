@@ -1,3 +1,4 @@
+import { getAuthUserId } from '@convex-dev/auth/server'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, generateText } from 'ai'
 import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
@@ -6,7 +7,7 @@ import { ConvexError, v } from 'convex/values'
 import { titleGenPrompt } from '../lib/prompts'
 import type { UIMessageWithMetadata } from '../lib/types'
 import { api, internal } from './_generated/api'
-import { internalMutation } from './_generated/server'
+import { internalMutation, query } from './_generated/server'
 import { authedAction, authedMutation, authedQuery } from './user'
 
 export const getAllChats = authedQuery({
@@ -58,6 +59,7 @@ export const createChat = authedMutation({
       updatedAt: Date.now(),
       isBranch: false,
       isPinned: false,
+      isShared: false,
     })
   },
 })
@@ -182,5 +184,57 @@ export const updateChatActiveStreamId = authedMutation({
     }
 
     await ctx.db.patch(chat._id, { activeStreamId: args.activeStreamId })
+  },
+})
+
+export const toggleChatShareStatus = authedMutation({
+  args: {
+    chatId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', ctx.userId))
+      .first()
+
+    if (!chat) {
+      throw new ConvexError('Chat not found')
+    }
+
+    await ctx.db.patch(chat._id, { isShared: !chat.isShared })
+
+    return { isShared: !chat.isShared }
+  },
+})
+
+export const getSharedChat = query({
+  args: {
+    chatId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await getOneFrom(ctx.db, 'chats', 'by_chat_id', args.chatId, 'id')
+
+    if (!chat || !chat.isShared) {
+      throw new ConvexError('Chat not found or not shared')
+    }
+
+    const userId = await getAuthUserId(ctx)
+
+    const chatData = {
+      id: chat.id,
+      title: chat.title,
+      isOwner: userId !== null && chat.userId === userId,
+    }
+
+    const messages = await getManyFrom(ctx.db, 'messages', 'by_chat_id', chat._id, 'chatId')
+
+    const uiMessages = messages.map((message) => ({
+      id: message.id,
+      role: message.role,
+      metadata: message.metadata,
+      parts: message.parts,
+    })) as UIMessageWithMetadata[]
+
+    return { chatData, messages: uiMessages }
   },
 })

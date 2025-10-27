@@ -1,4 +1,5 @@
 import { ConfirmationDialog } from '@/components/confirmation-dialog'
+import { ShareChatDialog } from '@/components/share-chat-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,7 @@ import type { Chat } from '@/convex/chat'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { getErrorMessage } from '@/lib/error'
 import { useMutation } from 'convex/react'
-import { GitBranch, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
+import { GitBranch, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Share, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
@@ -31,6 +32,7 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
   const renameInputRef = useRef<HTMLInputElement>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showShareDialog, setShowShareDialog] = useState(false)
 
   const deleteChat = useMutation(api.delete.deleteChat)
   const pinChat = useMutation(api.chatActions.pinChat)
@@ -157,6 +159,10 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
               <Pencil />
               <span>Rename</span>
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
+              <Share />
+              <span>Share</span>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={(e) => {
@@ -175,6 +181,7 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+
       <ConfirmationDialog
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
@@ -185,6 +192,7 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
         cancelText="Cancel"
         isLoading={isDeleting}
       />
+      <ShareChatDialog open={showShareDialog} onOpenChange={setShowShareDialog} chat={chat} />
     </SidebarMenuItem>
   )
 }
