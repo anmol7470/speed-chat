@@ -2,6 +2,7 @@
 
 import { models } from '@/lib/models'
 import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
+import type { FileUIPart } from 'ai'
 import { customAlphabet } from 'nanoid'
 import { usePathname } from 'next/navigation'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
@@ -14,6 +15,8 @@ type ChatConfigContextType = {
   chatId: string
   setChatId: (chatId: string) => void
   isLoading: boolean
+  updateDraftMessageEntry: (message: string, files: FileUIPart[]) => void
+  clearDraftMessageEntry: () => void
 }
 
 const ChatConfigContext = createContext<ChatConfigContextType | undefined>(undefined)
@@ -23,6 +26,7 @@ const STORAGE_KEY = 'chat-config'
 const getDefaultConfig = (): ChatConfig => ({
   selectedModelId: models.find((m) => m.default)?.id || 'google/gemini-2.5-flash',
   apiKey: '',
+  draftMessageEntry: { message: '', files: [] },
 })
 
 export function ChatConfigProvider({ children }: { children: ReactNode }) {
@@ -85,8 +89,21 @@ export function ChatConfigProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const updateDraftMessageEntry = (message: string, files: FileUIPart[]) => {
+    // Only update draft message in localStorage if we're not on a specific chat route
+    if (!urlChatId) {
+      updateConfig({ draftMessageEntry: { message, files } })
+    }
+  }
+
+  const clearDraftMessageEntry = () => {
+    updateConfig({ draftMessageEntry: { message: '', files: [] } })
+  }
+
   return (
-    <ChatConfigContext.Provider value={{ config, updateConfig, chatId, setChatId, isLoading }}>
+    <ChatConfigContext.Provider
+      value={{ config, updateConfig, chatId, setChatId, isLoading, updateDraftMessageEntry, clearDraftMessageEntry }}
+    >
       {children}
     </ChatConfigContext.Provider>
   )

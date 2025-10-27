@@ -6,7 +6,7 @@ import { Button } from './ui/button'
 
 type FilePreviewProps = {
   filesToSend: FileUIPart[]
-  filesToUpload: ReturnType<typeof useAttachments>['filesToUpload']
+  filesToUpload: File[]
   isUploading: ReturnType<typeof useAttachments>['isUploading']
   removeFile: ReturnType<typeof useAttachments>['removeFile']
 }
@@ -46,6 +46,7 @@ function FilePreview({ filesToSend, filesToUpload, isUploading, removeFile }: Fi
             </div>
             {!(isUploading && !isFileUploaded) && (
               <Button
+                type="button"
                 size="icon-sm"
                 variant="ghost"
                 className="text-muted-foreground/80 hover:text-foreground -me-2 size-8 hover:bg-transparent"

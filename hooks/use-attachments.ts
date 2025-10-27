@@ -9,11 +9,11 @@ import { toast } from 'react-hot-toast'
 type UseAttachmentsProps = {
   filesToSend: FileUIPart[]
   setFilesToSend: React.Dispatch<React.SetStateAction<FileUIPart[]>>
+  setFilesToUpload: React.Dispatch<React.SetStateAction<File[]>>
 }
 
-export function useAttachments({ filesToSend, setFilesToSend }: UseAttachmentsProps) {
+export function useAttachments({ filesToSend, setFilesToSend, setFilesToUpload }: UseAttachmentsProps) {
   const { user } = useUser()
-  const [filesToUpload, setFilesToUpload] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
 
   const maxFileSize = 4 * 1024 * 1024
@@ -129,8 +129,6 @@ export function useAttachments({ filesToSend, setFilesToSend }: UseAttachmentsPr
   }
 
   return {
-    filesToUpload,
-    setFilesToUpload,
     isUploading,
     handleFileChange,
     removeFile,

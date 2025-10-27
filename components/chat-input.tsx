@@ -28,28 +28,27 @@ export function ChatInput({
   const { user } = useUser()
   const {
     input,
-    setInput,
+    inputRef,
+    handleInputChange,
     handleSubmit,
     status,
     isStreaming,
     filesToSend,
     setFilesToSend,
+    filesToUpload,
+    setFilesToUpload,
     useWebSearch,
     setUseWebSearch,
     useReasoning,
     setUseReasoning,
   } = useChatContext()
   const { config, updateConfig, isLoading } = useChatConfig()
-  const inputRef = useRef<HTMLTextAreaElement>(null)
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value)
-  }
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { filesToUpload, setFilesToUpload, handleFileChange, removeFile, isUploading, processFilesAndUpload } =
-    useAttachments({
-      filesToSend,
-      setFilesToSend,
-    })
+  const { handleFileChange, removeFile, isUploading, processFilesAndUpload } = useAttachments({
+    filesToSend,
+    setFilesToSend,
+    setFilesToUpload,
+  })
 
   // Process dropped files when they arrive
   useEffect(() => {
