@@ -12,6 +12,7 @@ An AI chat application built with Next.js 15, Convex, and AI SDK v5, featuring m
 - **Search Chats** - Search through your chat history and messages
 - **Formatting** - Beautiful formatting of code, latex, tables in AI responses to improve chat experience
 - **Resumable Streams** - Streams automatically resume when page is refreshed or client navigates between chats
+- **Share Chats** - Share your chats and allow other users to fork their own copy
 
 ## 🛠 Tech Stack
 

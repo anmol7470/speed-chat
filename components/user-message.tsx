@@ -12,6 +12,49 @@ import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
+export function BaseUserMessage({ message }: { message: UIMessageWithMetadata }) {
+  const hasFiles = message.parts.some((part) => part.type === 'file')
+
+  return (
+    <div className="ml-auto w-fit max-w-[85%]">
+      <div
+        className={cn(
+          'bg-muted ml-auto w-fit rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
+          hasFiles && 'flex flex-col gap-2'
+        )}
+      >
+        {message.parts.map((part, index) => {
+          switch (part.type) {
+            case 'text':
+              return <span key={index}>{part.text.trim()}</span>
+            case 'file':
+              return (
+                <div
+                  key={part.filename}
+                  className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-2"
+                  onClick={() => {
+                    window.open(part.url, '_blank')
+                  }}
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    {part.mediaType.startsWith('image/') ? (
+                      <ImageIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                    ) : (
+                      <PaperclipIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-medium">{part.filename}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+          }
+        })}
+      </div>
+    </div>
+  )
+}
+
 export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
   const { isCopied, copyToClipboard } = useCopyToClipboard()
   const { sendMessage, buildBodyAndHeaders, messages: allMessages } = useChatContext()
@@ -21,7 +64,6 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
   const editRef = useRef<HTMLTextAreaElement>(null)
 
   const displayParts = isEditing ? editedParts : message.parts
-  const hasFiles = displayParts.some((part) => part.type === 'file')
   const messageContent = displayParts
     .filter((part) => part.type === 'text')
     .map((part) => part.text)
@@ -116,78 +158,70 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
 
   return (
     <div className={cn('group ml-auto flex flex-col', isEditing ? 'w-full' : 'w-fit max-w-[85%]')}>
-      <div
-        className={cn(
-          'bg-muted rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
-          isEditing ? 'w-full' : 'ml-auto w-fit',
-          hasFiles && 'flex flex-col gap-2'
-        )}
-      >
-        {displayParts.map((part, index) => {
-          switch (part.type) {
-            case 'text':
-              return isEditing ? (
-                <div className="flex flex-col gap-2" key={index}>
-                  <Textarea
-                    ref={editRef}
-                    value={part.text}
-                    onChange={(e) => handleTextChange(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape') {
-                        handleCancel()
-                      }
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSend()
-                      }
-                    }}
-                    className="min-h-[60px] w-full resize-none border-0 bg-transparent px-2 shadow-none outline-none focus-visible:ring-0"
-                    rows={3}
-                  />
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      type="button"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      type="button"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={handleSend}
-                    >
-                      Send
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <span key={index}>{part.text.trim()}</span>
-              )
-            case 'file':
-              return (
-                <div
-                  key={part.filename}
-                  className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-2"
-                  onClick={() => {
-                    window.open(part.url, '_blank')
-                  }}
-                >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    {part.mediaType.startsWith('image/') ? (
-                      <ImageIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
-                    ) : (
-                      <PaperclipIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
-                    )}
-                    <div className="min-w-0">
-                      <p className="truncate text-[13px] font-medium">{part.filename}</p>
+      {isEditing ? (
+        <div className="bg-muted w-full rounded-xl p-2 px-3 break-words whitespace-pre-wrap">
+          {displayParts.map((part, index) => {
+            switch (part.type) {
+              case 'text':
+                return (
+                  <div className="flex flex-col gap-2" key={index}>
+                    <Textarea
+                      ref={editRef}
+                      value={part.text}
+                      onChange={(e) => handleTextChange(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                          handleCancel()
+                        }
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSend()
+                        }
+                      }}
+                      className="min-h-[60px] w-full resize-none border-0 bg-transparent px-2 shadow-none outline-none focus-visible:ring-0"
+                      rows={3}
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={handleCancel}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={handleSend}
+                      >
+                        Send
+                      </Button>
                     </div>
                   </div>
-                  {isEditing && (
+                )
+              case 'file':
+                return (
+                  <div
+                    key={part.filename}
+                    className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-2"
+                    onClick={() => {
+                      window.open(part.url, '_blank')
+                    }}
+                  >
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      {part.mediaType.startsWith('image/') ? (
+                        <ImageIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                      ) : (
+                        <PaperclipIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="truncate text-[13px] font-medium">{part.filename}</p>
+                      </div>
+                    </div>
                     <Button
                       size="icon-sm"
                       variant="ghost"
@@ -201,12 +235,14 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
                     >
                       <XIcon className="size-4" aria-hidden="true" />
                     </Button>
-                  )}
-                </div>
-              )
-          }
-        })}
-      </div>
+                  </div>
+                )
+            }
+          })}
+        </div>
+      ) : (
+        <BaseUserMessage message={message} />
+      )}
       <div className="mt-1 flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <Tooltip>
           <TooltipTrigger asChild>

@@ -1,9 +1,9 @@
 'use client'
 
 import { Conversation, ConversationContent } from '@/components/ai-elements/conversation'
-import { AssistantMessage } from '@/components/assistant-message'
+import { BaseAssistantMessage } from '@/components/assistant-message'
 import { Button } from '@/components/ui/button'
-import { UserMessage } from '@/components/user-message'
+import { BaseUserMessage } from '@/components/user-message'
 import { api } from '@/convex/_generated/api'
 import { getErrorMessage } from '@/lib/error'
 import type { UIMessageWithMetadata } from '@/lib/types'
@@ -82,11 +82,11 @@ export function SharedChatContainer({ preloadedChat }: SharedChatContainerProps)
             <div className="mx-auto max-w-[745px] space-y-4 pt-16 pb-8 text-[14.5px]">
               {messages.map((message: UIMessageWithMetadata) => {
                 if (message.role === 'user') {
-                  return <UserMessage key={message.id} message={message} />
+                  return <BaseUserMessage key={message.id} message={message} />
                 }
 
                 if (message.role === 'assistant') {
-                  return <AssistantMessage key={message.id} message={message} isAnimating={false} />
+                  return <BaseAssistantMessage key={message.id} message={message} isAnimating={false} />
                 }
 
                 return null
