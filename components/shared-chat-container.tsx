@@ -2,6 +2,7 @@
 
 import { Conversation, ConversationContent } from '@/components/ai-elements/conversation'
 import { BaseAssistantMessage } from '@/components/assistant-message'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { BaseUserMessage } from '@/components/user-message'
@@ -14,8 +15,9 @@ import { type Preloaded, useMutation, usePreloadedQuery } from 'convex/react'
 import { Check, Copy, GitFork, Info, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { Header } from './header'
 import { nanoid } from './providers/chat-config-provider'
 import { useUser } from './providers/user-provider'
 
@@ -30,6 +32,10 @@ export function SharedChatContainer({ preloadedChat }: SharedChatContainerProps)
   const forkChat = useMutation(api.chatActions.forkChat)
   const [isForking, setIsForking] = useState(false)
   const { isCopied, copyToClipboard } = useCopyToClipboard()
+
+  useEffect(() => {
+    document.title = `${chatData.title} | Speed Chat`
+  }, [chatData])
 
   const handleFork = async () => {
     if (!user) {
@@ -52,36 +58,41 @@ export function SharedChatContainer({ preloadedChat }: SharedChatContainerProps)
 
   return (
     <div className="relative flex h-full flex-col">
-      <div className="border-border flex h-14 items-center justify-between border-b px-4">
-        <div className="flex items-center gap-2">
-          <Info className="text-muted-foreground size-4" />
-          <p className="text-sm font-medium">{chatData.isOwner ? 'This is your shared chat' : 'Viewing shared chat'}</p>
-        </div>
-        {chatData.isOwner ? (
-          <Button asChild size="sm" variant="outline">
-            <Link href={`/chat/${chatData.id}`}>Edit chat</Link>
-          </Button>
-        ) : (
-          <Button onClick={handleFork} disabled={isForking} size="sm">
-            {isForking ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Forking...
-              </>
-            ) : (
-              <>
-                <GitFork className="size-4" />
-                Fork chat
-              </>
-            )}
-          </Button>
-        )}
-      </div>
+      <Header />
 
       <div className="flex min-h-0 flex-1 flex-col">
         <Conversation className="overflow-hidden">
           <ConversationContent className="mx-auto w-full max-w-3xl px-4 md:px-0">
-            <div className="mx-auto max-w-[745px] space-y-4 pt-16 pb-8 text-[14.5px]">
+            <Alert className="mx-auto mt-16 mb-8 w-full max-w-[745px]">
+              <Info />
+              <AlertTitle>You are viewing a shared chat</AlertTitle>
+              <AlertDescription className="flex items-center justify-between">
+                <span className="text-xs">
+                  {chatData.isOwner ? 'Edit your chat to make changes' : 'Fork this chat to make your own copy'}
+                </span>
+                {chatData.isOwner ? (
+                  <Button asChild size="sm" variant="outline" className="h-7 text-xs">
+                    <Link href={`/chat/${chatData.id}`}>Edit chat</Link>
+                  </Button>
+                ) : (
+                  <Button onClick={handleFork} disabled={isForking} size="sm" className="h-7 text-xs">
+                    {isForking ? (
+                      <>
+                        <Loader2 className="size-3 animate-spin" />
+                        Forking...
+                      </>
+                    ) : (
+                      <>
+                        <GitFork className="size-3" />
+                        Fork chat
+                      </>
+                    )}
+                  </Button>
+                )}
+              </AlertDescription>
+            </Alert>
+
+            <div className="mx-auto max-w-[745px] space-y-4 pb-8 text-[14.5px]">
               {messages.map((message: UIMessageWithMetadata) => {
                 const messageContent = message.parts
                   .filter((part) => part.type === 'text')

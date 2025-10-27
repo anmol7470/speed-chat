@@ -16,41 +16,39 @@ export function BaseUserMessage({ message }: { message: UIMessageWithMetadata })
   const hasFiles = message.parts.some((part) => part.type === 'file')
 
   return (
-    <div className="ml-auto w-fit max-w-[85%]">
-      <div
-        className={cn(
-          'bg-muted ml-auto w-fit rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
-          hasFiles && 'flex flex-col gap-2'
-        )}
-      >
-        {message.parts.map((part, index) => {
-          switch (part.type) {
-            case 'text':
-              return <span key={index}>{part.text.trim()}</span>
-            case 'file':
-              return (
-                <div
-                  key={part.filename}
-                  className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-2"
-                  onClick={() => {
-                    window.open(part.url, '_blank')
-                  }}
-                >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    {part.mediaType.startsWith('image/') ? (
-                      <ImageIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
-                    ) : (
-                      <PaperclipIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
-                    )}
-                    <div className="min-w-0">
-                      <p className="truncate text-[13px] font-medium">{part.filename}</p>
-                    </div>
+    <div
+      className={cn(
+        'bg-muted ml-auto rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
+        hasFiles && 'flex flex-col gap-2'
+      )}
+    >
+      {message.parts.map((part, index) => {
+        switch (part.type) {
+          case 'text':
+            return <span key={index}>{part.text}</span>
+          case 'file':
+            return (
+              <div
+                key={part.filename}
+                className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-2"
+                onClick={() => {
+                  window.open(part.url, '_blank')
+                }}
+              >
+                <div className="flex items-center gap-3 overflow-hidden">
+                  {part.mediaType.startsWith('image/') ? (
+                    <ImageIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                  ) : (
+                    <PaperclipIcon className="size-4 shrink-0 opacity-60" aria-hidden="true" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-medium">{part.filename}</p>
                   </div>
                 </div>
-              )
-          }
-        })}
-      </div>
+              </div>
+            )
+        }
+      })}
     </div>
   )
 }

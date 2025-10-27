@@ -235,7 +235,12 @@ export function LoginButton({
   const { signIn } = useAuthActions()
 
   return (
-    <Button className={className} onClick={() => void signIn('google')} size={size} variant={variant}>
+    <Button
+      className={className}
+      onClick={() => void signIn('google', { redirectTo: window.location.href })}
+      size={size}
+      variant={variant}
+    >
       <LogIn className="size-5" />
       Sign in
     </Button>
