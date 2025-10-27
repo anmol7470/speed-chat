@@ -1,3 +1,4 @@
+import { ConfirmationDialog } from '@/components/confirmation-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,8 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
   const [renamingChatId, setRenamingChatId] = useState<string | null>(null)
   const [newChatTitle, setNewChatTitle] = useState('')
   const renameInputRef = useRef<HTMLInputElement>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const deleteChat = useMutation(api.delete.deleteChat)
   const pinChat = useMutation(api.chatActions.pinChat)
@@ -37,6 +40,22 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
     setIsRenamingChat(false)
     setRenamingChatId(null)
     setNewChatTitle('')
+  }
+
+  const handleDeleteChat = async () => {
+    if (chat.id === currentChatId) {
+      router.push('/')
+    }
+    setIsDeleting(true)
+    try {
+      await deleteChat({ chatId: chat.id })
+      toast.success('Chat deleted')
+      setShowDeleteDialog(false)
+    } catch (error) {
+      toast.error(getErrorMessage(error))
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -140,17 +159,13 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => {
-                if (chat.id === currentChatId) {
-                  router.push('/')
+              onClick={(e) => {
+                // If Shift key is pressed, delete immediately without confirmation
+                if (e.shiftKey) {
+                  handleDeleteChat()
+                } else {
+                  setShowDeleteDialog(true)
                 }
-                toast.promise(deleteChat({ chatId: chat.id }), {
-                  loading: 'Deleting chat...',
-                  success: 'Chat deleted',
-                  error: (error) => {
-                    return getErrorMessage(error)
-                  },
-                })
               }}
               variant="destructive"
             >
@@ -160,6 +175,16 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+      <ConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDeleteChat}
+        title="Delete chat"
+        description="Are you sure you want to delete this chat? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+      />
     </SidebarMenuItem>
   )
 }
