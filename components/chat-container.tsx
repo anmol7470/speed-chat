@@ -1,17 +1,19 @@
 'use client'
 
-import { Conversation, ConversationContent, ConversationScrollButton } from '@/components/ai-elements/conversation'
+import { ArrowDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'react-hot-toast'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom'
 import { ChatInput } from './chat-input'
 import { Header } from './header'
 import { Messages } from './messages'
 import { ChatProvider, useChatContext } from './providers/chat-provider'
 import { useDialogs } from './providers/dialogs-provider'
 import { useUser } from './providers/user-provider'
+import { Button } from './ui/button'
 
 export function ChatContainerParent({ paramsChatId }: { paramsChatId: string }) {
   return (
@@ -58,7 +60,7 @@ function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
   })
 
   return (
-    <div {...getRootProps()} className="relative flex h-full flex-col">
+    <div {...getRootProps()} className="relative flex flex-1 flex-col overflow-hidden">
       <input {...getInputProps()} />
       {isDragActive && (
         <div className="border-border bg-primary/10 absolute inset-0 z-50 flex items-center justify-center border border-dashed backdrop-blur-sm">
@@ -72,18 +74,39 @@ function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
           <ChatInput isDragActive={isDragActive} droppedFiles={droppedFiles} setDroppedFiles={setDroppedFiles} />
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col">
-          <Conversation className="overflow-hidden">
-            <ConversationContent className="mx-auto w-full max-w-3xl px-4 md:px-0">
-              {isLoadingMessages ? null : <Messages />}
-            </ConversationContent>
-            <ConversationScrollButton />
-          </Conversation>
+        <StickToBottom
+          className="relative flex min-h-0 flex-1 flex-col overflow-hidden"
+          resize="instant"
+          initial="instant"
+        >
+          <StickToBottom.Content className="px-4 md:px-0">
+            {isLoadingMessages ? null : <Messages />}
+          </StickToBottom.Content>
+          <ScrollToBottom />
           <div className="flex-shrink-0 px-2 pb-2">
             <ChatInput isDragActive={isDragActive} droppedFiles={droppedFiles} setDroppedFiles={setDroppedFiles} />
           </div>
-        </div>
+        </StickToBottom>
       )}
     </div>
+  )
+}
+
+function ScrollToBottom() {
+  const { isAtBottom, scrollToBottom } = useStickToBottomContext()
+
+  return (
+    !isAtBottom && (
+      <div className="absolute bottom-34 left-1/2 -translate-x-1/2">
+        <Button
+          size="icon-sm"
+          variant="outline"
+          onClick={() => scrollToBottom()}
+          className="!bg-background rounded-full shadow-md"
+        >
+          <ArrowDown className="size-4" />
+        </Button>
+      </div>
+    )
   )
 }

@@ -21,7 +21,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
-import { Response } from './ai-elements/response'
+import { Streamdown } from 'streamdown'
 import { useChatConfig } from './providers/chat-config-provider'
 import { useChatContext } from './providers/chat-provider'
 import { Button } from './ui/button'
@@ -54,16 +54,16 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                     <ChevronDown className={`size-4 transition-transform ${isReasoningOpen ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="text-muted-foreground w-full space-y-2 pt-4 text-sm">
-                    <Response isAnimating={isAnimating}>{part.text}</Response>
+                    <Streamdown isAnimating={isAnimating}>{part.text}</Streamdown>
                   </CollapsibleContent>
                 </Collapsible>
               </div>
             )
           case 'text':
             return (
-              <Response key={id} isAnimating={isAnimating}>
+              <Streamdown key={id} isAnimating={isAnimating}>
                 {part.text}
-              </Response>
+              </Streamdown>
             )
           case 'tool-web_search':
             const webSearchToolInput = part.input as WebSearchToolInput

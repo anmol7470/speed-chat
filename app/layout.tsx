@@ -30,7 +30,7 @@ export default async function RootLayout({
   return (
     <ConvexAuthNextjsServerProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen antialiased`}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <Providers>
             <AppSidebar />
             <SidebarInset>{children}</SidebarInset>

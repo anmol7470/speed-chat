@@ -176,7 +176,7 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
                           handleSend()
                         }
                       }}
-                      className="min-h-[60px] w-full resize-none border-0 bg-transparent px-2 shadow-none outline-none focus-visible:ring-0"
+                      className="min-h-[60px] w-full resize-none border-0 !bg-transparent px-2 shadow-none outline-none focus-visible:ring-0"
                       rows={3}
                     />
                     <div className="flex justify-end gap-2">
