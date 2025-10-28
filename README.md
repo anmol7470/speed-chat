@@ -16,7 +16,7 @@ An AI chat application built with Next.js, Convex, and Vercel AI SDK, featuring 
 
 ## 🛠 Tech Stack
 
-- [Next.js](https://nextjs.org) - Full stack React framework with server components/actions and api routes
+- [Next.js 16 App Router](https://nextjs.org) - Full stack React framework with server components/actions and api routes
 - [React](https://react.dev) - Library for web and native user interfaces
 - [Convex](https://www.convex.dev) - Reactive backend as a service platform
 - [Convex Helpers](https://github.com/get-convex/convex-helpers) - Helpers to extend the Convex SDK
@@ -33,7 +33,7 @@ An AI chat application built with Next.js, Convex, and Vercel AI SDK, featuring 
 1. Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/anmhrk/speed-chat.git
+git clone https://github.com/anmol7470/speed-chat.git
 cd speed-chat
 bun install # or whatever package manager you prefer
 ```
