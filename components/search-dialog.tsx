@@ -6,11 +6,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { api } from '@/convex/_generated/api'
 import type { SearchResult } from '@/convex/search'
 import { useQueryWithStatus } from '@/lib/utils'
+import { useConvexAuth } from 'convex/react'
 import debounce from 'lodash.debounce'
 import { LogIn, MessageSquare } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useUser } from './providers/user-provider'
 
 type SearchDialogProps = {
   open: boolean
@@ -19,7 +19,7 @@ type SearchDialogProps = {
 
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   const router = useRouter()
-  const { user } = useUser()
+  const { isAuthenticated } = useConvexAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
 
@@ -52,7 +52,6 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     [router, onOpenChange]
   )
 
-  const isAuthenticated = !!user
   const isLoading = isAuthenticated && debouncedQuery.length > 0 && isPending
   const hasResults = searchResults && searchResults.length > 0
   const showEmptyState = isAuthenticated && debouncedQuery.length > 0 && !isLoading && !hasResults

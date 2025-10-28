@@ -108,11 +108,6 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
       return
     }
 
-    if (editedParts === originalParts) {
-      toast.error('No changes made')
-      return
-    }
-
     const editingMessageIndex = allMessages.findIndex((m) => m.id === message.id)
 
     // Find files that were removed (in original but not in edited)

@@ -1,6 +1,6 @@
 'use client'
 
-import { models } from '@/lib/models'
+import { models } from '@/lib/ai/models'
 import { type ChatConfig, ChatConfigSchema } from '@/lib/types'
 import type { FileUIPart } from 'ai'
 import { customAlphabet } from 'nanoid'

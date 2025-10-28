@@ -3,7 +3,7 @@ import type { FunctionReturnType } from 'convex/server'
 import { v } from 'convex/values'
 import type { api } from './_generated/api'
 import type { Doc } from './_generated/dataModel'
-import { authedQuery } from './user'
+import { authedQuery } from './utils'
 
 export type SearchResult = FunctionReturnType<typeof api.search.searchAll>
 

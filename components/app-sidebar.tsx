@@ -13,9 +13,9 @@ import {
   SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
 import { api } from '@/convex/_generated/api'
+import { authClient } from '@/lib/auth/client'
 import { getErrorMessage } from '@/lib/error'
 import { useQueryWithStatus } from '@/lib/utils'
-import { useAuthActions } from '@convex-dev/auth/react'
 import { VariantProps } from 'class-variance-authority'
 import { useMutation } from 'convex/react'
 import { Key, LogIn, LogOut, MessageSquare, PenBox, Search, Trash } from 'lucide-react'
@@ -27,7 +27,6 @@ import { toast } from 'react-hot-toast'
 import { ConfirmationDialog } from './confirmation-dialog'
 import { useChatConfig } from './providers/chat-config-provider'
 import { useDialogs } from './providers/dialogs-provider'
-import { useUser } from './providers/user-provider'
 import { SidebarChatItem } from './sidebar-chat-item'
 import { Button, buttonVariants } from './ui/button'
 import {
@@ -40,8 +39,7 @@ import {
 import { Kbd, KbdGroup } from './ui/kbd'
 
 export function AppSidebar() {
-  const { user, isPending: isUserPending } = useUser()
-  const { signOut } = useAuthActions()
+  const { data: session, isPending: isUserLoading } = authClient.useSession()
   const router = useRouter()
   const { chatId } = useChatConfig()
   const { setOpenSearchDialog, setOpenApiKeyDialog } = useDialogs()
@@ -54,7 +52,7 @@ export function AppSidebar() {
     isSuccess,
     isPending,
     isError,
-  } = useQueryWithStatus(api.chat.getAllChats, user ? {} : 'skip')
+  } = useQueryWithStatus(api.chat.getAllChats, session ? {} : 'skip')
 
   const deleteAllChats = useMutation(api.delete.deleteAllChats)
 
@@ -129,7 +127,7 @@ export function AppSidebar() {
 
         <SidebarContent>
           <SidebarGroup className="flex flex-1 flex-col">
-            {!user && !isUserPending ? (
+            {!session && !isUserLoading ? (
               <div className="text-muted-foreground mx-auto my-auto flex text-sm">Please login to view your chats.</div>
             ) : isPending || (isSuccess && chats?.length === 0) ? null : (
               <>
@@ -159,14 +157,20 @@ export function AppSidebar() {
         </SidebarContent>
 
         <SidebarFooter>
-          {isUserPending ? (
+          {isUserLoading ? (
             <SidebarMenuSkeleton showIcon={true} />
-          ) : user ? (
+          ) : session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="flex h-12 w-full items-center justify-start gap-3 rounded-lg px-2" variant="ghost">
-                  <Image src={user.image ?? ''} alt={user.name ?? ''} width={30} height={30} className="rounded-full" />
-                  <span className="truncate text-sm font-normal">{user.name}</span>
+                  <Image
+                    src={session.user.image ?? ''}
+                    alt={session.user.name ?? ''}
+                    width={30}
+                    height={30}
+                    className="rounded-full"
+                  />
+                  <span className="truncate text-sm font-normal">{session.user.name}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -176,8 +180,16 @@ export function AppSidebar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={async () => {
-                    await signOut()
-                    router.push('/')
+                    await authClient.signOut({
+                      fetchOptions: {
+                        onSuccess: () => {
+                          router.push('/')
+                        },
+                        onError: ({ error }) => {
+                          toast.error(error.message)
+                        },
+                      },
+                    })
                   }}
                 >
                   <LogOut />
@@ -232,12 +244,15 @@ export function LoginButton({
   variant: VariantProps<typeof buttonVariants>['variant']
   size: VariantProps<typeof buttonVariants>['size']
 }) {
-  const { signIn } = useAuthActions()
-
   return (
     <Button
       className={className}
-      onClick={() => void signIn('google', { redirectTo: window.location.href })}
+      onClick={async () =>
+        await authClient.signIn.social({
+          provider: 'google',
+          callbackURL: window.location.href,
+        })
+      }
       size={size}
       variant={variant}
     >

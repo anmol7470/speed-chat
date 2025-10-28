@@ -4,7 +4,6 @@ import { SidebarProvider } from '../ui/sidebar'
 import { ChatConfigProvider } from './chat-config-provider'
 import { ConvexClientProvider } from './convex-client-provider'
 import { DialogsProvider } from './dialogs-provider'
-import { UserProvider } from './user-provider'
 
 export async function Providers({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
@@ -12,17 +11,15 @@ export async function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ConvexClientProvider>
-      <UserProvider>
-        <ChatConfigProvider>
-          <DialogsProvider>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                {children}
-              </ThemeProvider>
-            </SidebarProvider>
-          </DialogsProvider>
-        </ChatConfigProvider>
-      </UserProvider>
+      <ChatConfigProvider>
+        <DialogsProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              {children}
+            </ThemeProvider>
+          </SidebarProvider>
+        </DialogsProvider>
+      </ChatConfigProvider>
     </ConvexClientProvider>
   )
 }

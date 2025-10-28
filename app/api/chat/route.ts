@@ -1,17 +1,17 @@
 import { api } from '@/convex/_generated/api'
+import { chatSystemPrompt } from '@/lib/ai/prompts'
+import { webSearchTool } from '@/lib/ai/web-search-tool'
+import { getToken } from '@/lib/auth/token'
 import { getErrorMessage } from '@/lib/error'
-import { chatSystemPrompt } from '@/lib/prompts'
 import { getStreamContext } from '@/lib/stream-context'
 import { ChatRequestSchema, MessageMetadata } from '@/lib/types'
-import { webSearchTool } from '@/lib/web-search-tool'
-import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, streamText } from 'ai'
 import { fetchAction, fetchMutation } from 'convex/nextjs'
 import { nanoid } from 'nanoid'
 
 export async function POST(request: Request) {
-  const token = await convexAuthNextjsToken()
+  const token = await getToken()
 
   if (!token) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {

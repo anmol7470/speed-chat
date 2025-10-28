@@ -1,8 +1,9 @@
 'use client'
 
+import { useConvexAuth } from 'convex/react'
 import { ArrowDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'react-hot-toast'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -12,7 +13,6 @@ import { Header } from './header'
 import { Messages } from './messages'
 import { ChatProvider, useChatContext } from './providers/chat-provider'
 import { useDialogs } from './providers/dialogs-provider'
-import { useUser } from './providers/user-provider'
 import { Button } from './ui/button'
 
 export function ChatContainerParent({ paramsChatId }: { paramsChatId: string }) {
@@ -24,7 +24,7 @@ export function ChatContainerParent({ paramsChatId }: { paramsChatId: string }) 
 }
 
 function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
-  const { user } = useUser()
+  const { isAuthenticated, isLoading } = useConvexAuth()
   const { messages, isLoadingMessages } = useChatContext()
   const noActiveChat = !paramsChatId && messages.length === 0
   const [droppedFiles, setDroppedFiles] = useState<File[]>([])
@@ -42,7 +42,7 @@ function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
-      if (!user) {
+      if (!isAuthenticated) {
         toast.error('Please sign in to attach files')
         return
       }
@@ -59,8 +59,14 @@ function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
     },
   })
 
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      router.push('/')
+    }
+  }, [isAuthenticated, isLoading, router])
+
   return (
-    <div {...getRootProps()} className="relative flex flex-1 flex-col overflow-hidden">
+    <div {...getRootProps()} className="relative flex h-screen flex-col overflow-hidden">
       <input {...getInputProps()} />
       {isDragActive && (
         <div className="border-border bg-primary/10 absolute inset-0 z-50 flex items-center justify-center border border-dashed backdrop-blur-sm">
@@ -74,12 +80,8 @@ function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
           <ChatInput isDragActive={isDragActive} droppedFiles={droppedFiles} setDroppedFiles={setDroppedFiles} />
         </div>
       ) : (
-        <StickToBottom
-          className="relative flex min-h-0 flex-1 flex-col overflow-hidden"
-          resize="instant"
-          initial="instant"
-        >
-          <StickToBottom.Content className="px-4 md:px-0">
+        <StickToBottom className="relative flex min-h-0 flex-1 flex-col" resize="instant" initial="instant">
+          <StickToBottom.Content className="overflow-y-auto px-4 md:px-0">
             {isLoadingMessages ? null : <Messages />}
           </StickToBottom.Content>
           <ScrollToBottom />

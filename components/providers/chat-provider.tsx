@@ -1,18 +1,18 @@
 'use client'
 
 import { api } from '@/convex/_generated/api'
-import { models } from '@/lib/models'
+import { models } from '@/lib/ai/models'
 import type { ChatRequest, Model, UIMessageWithMetadata } from '@/lib/types'
 import { useQueryWithStatus } from '@/lib/utils'
 import { useChat, UseChatHelpers } from '@ai-sdk/react'
 import { createIdGenerator, DefaultChatTransport, FileUIPart } from 'ai'
+import { useConvexAuth } from 'convex/react'
 import { useRouter } from 'next/navigation'
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Button } from '../ui/button'
 import { useChatConfig } from './chat-config-provider'
 import { useDialogs } from './dialogs-provider'
-import { useUser } from './user-provider'
 
 type ChatContextType = {
   input: string
@@ -46,7 +46,7 @@ export const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
 export const ChatProvider = ({ children, paramsChatId }: { children: React.ReactNode; paramsChatId: string }) => {
   const router = useRouter()
-  const { user } = useUser()
+  const { isAuthenticated } = useConvexAuth()
   const { config, chatId, updateDraftMessageEntry, clearDraftMessageEntry, isLoading: configLoading } = useChatConfig()
   const { setOpenApiKeyDialog } = useDialogs()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -60,7 +60,7 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
     data: initialMessages,
     isPending,
     isError,
-  } = useQueryWithStatus(api.chat.getChatMessages, paramsChatId && user ? { chatId: paramsChatId } : 'skip')
+  } = useQueryWithStatus(api.chat.getChatMessages, paramsChatId && isAuthenticated ? { chatId: paramsChatId } : 'skip')
 
   useEffect(() => {
     if (isError) {
@@ -149,7 +149,7 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!user) {
+    if (!isAuthenticated) {
       toast.error('Please sign in to chat')
       return
     }
@@ -225,7 +225,7 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
         sendMessage,
         status,
         regenerate,
-        isLoadingMessages: isPending && !!paramsChatId && !!user,
+        isLoadingMessages: isPending && !!paramsChatId && !!isAuthenticated,
         handleSubmit,
         error,
         clearError,

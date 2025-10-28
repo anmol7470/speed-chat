@@ -1,9 +1,9 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import { models } from '@/lib/ai/models'
+import { WebSearchToolInput, WebSearchToolOutput } from '@/lib/ai/web-search-tool'
 import { getErrorMessage } from '@/lib/error'
-import { models } from '@/lib/models'
 import { UIMessageWithMetadata } from '@/lib/types'
-import { WebSearchToolInput, WebSearchToolOutput } from '@/lib/web-search-tool'
 import { useMutation } from 'convex/react'
 import {
   AlertCircle,

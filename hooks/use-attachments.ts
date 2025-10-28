@@ -1,8 +1,7 @@
-import { useUser } from '@/components/providers/user-provider'
 import { api } from '@/convex/_generated/api'
 import { getErrorMessage } from '@/lib/error'
 import type { FileUIPart } from 'ai'
-import { useMutation } from 'convex/react'
+import { useConvexAuth, useMutation } from 'convex/react'
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 
@@ -13,7 +12,7 @@ type UseAttachmentsProps = {
 }
 
 export function useAttachments({ filesToSend, setFilesToSend, setFilesToUpload }: UseAttachmentsProps) {
-  const { user } = useUser()
+  const { isAuthenticated } = useConvexAuth()
   const [isUploading, setIsUploading] = useState(false)
 
   const maxFileSize = 4 * 1024 * 1024
@@ -27,7 +26,7 @@ export function useAttachments({ filesToSend, setFilesToSend, setFilesToUpload }
   }
 
   const startUpload = async (files: File[]) => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast.error('Please sign in to upload files')
       return
     }

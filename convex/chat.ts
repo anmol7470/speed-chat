@@ -1,14 +1,13 @@
-import { getAuthUserId } from '@convex-dev/auth/server'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, generateText } from 'ai'
 import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { FunctionReturnType } from 'convex/server'
 import { ConvexError, v } from 'convex/values'
-import { titleGenPrompt } from '../lib/prompts'
+import { titleGenPrompt } from '../lib/ai/prompts'
 import type { UIMessageWithMetadata } from '../lib/types'
 import { api, internal } from './_generated/api'
 import { internalMutation, query } from './_generated/server'
-import { authedAction, authedMutation, authedQuery } from './user'
+import { authedAction, authedMutation, authedQuery } from './utils'
 
 export const getAllChats = authedQuery({
   handler: async (ctx) => {
@@ -94,7 +93,7 @@ export const generateChatTitle = authedAction({
 export const updateChatTitle = internalMutation({
   args: {
     chatId: v.string(),
-    userId: v.id('users'),
+    userId: v.string(),
     title: v.string(),
   },
   handler: async (ctx, args) => {
@@ -218,7 +217,8 @@ export const getSharedChat = query({
       throw new ConvexError('Chat not found or not shared')
     }
 
-    const userId = await getAuthUserId(ctx)
+    const identity = await ctx.auth.getUserIdentity()
+    const userId = identity?.tokenIdentifier
 
     const chatData = {
       id: chat.id,

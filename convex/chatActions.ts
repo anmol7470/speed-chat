@@ -1,7 +1,7 @@
 import { getManyFrom, getOneFrom } from 'convex-helpers/server/relationships'
 import { ConvexError, v } from 'convex/values'
 import { nanoid } from 'nanoid'
-import { authedMutation } from './user'
+import { authedMutation } from './utils'
 
 export const branchOffFromMessage = authedMutation({
   args: {

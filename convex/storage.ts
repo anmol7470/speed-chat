@@ -1,7 +1,7 @@
 import { getOneFrom } from 'convex-helpers/server/relationships'
 import { ConvexError, v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
-import { authedMutation } from './user'
+import { authedMutation } from './utils'
 
 export const generateUploadUrl = authedMutation({
   handler: async (ctx) => {

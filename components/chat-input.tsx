@@ -1,15 +1,15 @@
 'use client'
 
 import { useAttachments } from '@/hooks/use-attachments'
-import { models } from '@/lib/models'
+import { models } from '@/lib/ai/models'
 import { cn } from '@/lib/utils'
+import { useConvexAuth } from 'convex/react'
 import { ArrowUp, Brain, ChevronDown, Globe, Loader2, Paperclip } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { MemoizedFilePreview } from './file-preview'
 import { useChatConfig } from './providers/chat-config-provider'
 import { useChatContext } from './providers/chat-provider'
-import { useUser } from './providers/user-provider'
 import { Button, buttonVariants } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Textarea } from './ui/textarea'
@@ -25,7 +25,7 @@ export function ChatInput({
   droppedFiles: File[]
   setDroppedFiles: React.Dispatch<React.SetStateAction<File[]>>
 }) {
-  const { user } = useUser()
+  const { isAuthenticated } = useConvexAuth()
   const {
     input,
     inputRef,
@@ -100,7 +100,7 @@ export function ChatInput({
             <TooltipTrigger asChild>
               <Button
                 onClick={() => {
-                  if (user) {
+                  if (isAuthenticated) {
                     fileInputRef.current?.click()
                   } else {
                     toast.error('Please sign in to attach files')

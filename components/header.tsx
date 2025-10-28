@@ -1,12 +1,12 @@
+import { useConvexAuth } from 'convex/react'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { LoginButton } from './app-sidebar'
-import { useUser } from './providers/user-provider'
 import { Button } from './ui/button'
 import { SidebarTrigger } from './ui/sidebar'
 
 export function Header() {
-  const { user, isPending: isUserPending } = useUser()
+  const { isAuthenticated, isLoading } = useConvexAuth()
   const { theme, setTheme } = useTheme()
 
   return (
@@ -18,7 +18,7 @@ export function Header() {
           <Moon className="absolute size-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
           <span className="sr-only">Toggle theme</span>
         </Button>
-        {!user && !isUserPending && <LoginButton className="flex md:hidden" variant="default" size="sm" />}
+        {!isAuthenticated && !isLoading && <LoginButton className="flex md:hidden" variant="default" size="sm" />}
       </div>
     </header>
   )

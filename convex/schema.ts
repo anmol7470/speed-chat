@@ -1,14 +1,11 @@
-import { authTables } from '@convex-dev/auth/server'
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 
 const schema = defineSchema({
-  ...authTables,
-
   chats: defineTable({
     id: v.string(),
     title: v.string(),
-    userId: v.id('users'),
+    userId: v.string(), // token identifier
     createdAt: v.number(),
     updatedAt: v.number(),
     isBranch: v.boolean(),
@@ -46,7 +43,7 @@ const schema = defineSchema({
     }),
 
   attachments: defineTable({
-    userId: v.id('users'),
+    userId: v.string(), // token identifier
     id: v.id('_storage'),
     url: v.string(),
   })

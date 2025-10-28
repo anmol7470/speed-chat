@@ -1,6 +1,6 @@
 # Speed Chat
 
-An AI chat application built with Next.js 15, Convex, and AI SDK v5, featuring multiple AI models via OpenRouter, file (images and PDFs) upload support, web search, and resumable streams.
+An AI chat application built with Next.js, Convex, and Vercel AI SDK, featuring multiple AI models via OpenRouter, file (images and PDFs) upload support, web search, and resumable streams.
 
 ## 🚀 Features
 
@@ -16,12 +16,12 @@ An AI chat application built with Next.js 15, Convex, and AI SDK v5, featuring m
 
 ## 🛠 Tech Stack
 
-- [Next.js 15 App Router](https://nextjs.org) - Full stack React framework with server components/actions and api routes
-- [React 19](https://react.dev) - Latest React
+- [Next.js](https://nextjs.org) - Full stack React framework with server components/actions and api routes
+- [React](https://react.dev) - Library for web and native user interfaces
 - [Convex](https://www.convex.dev) - Reactive backend as a service platform
 - [Convex Helpers](https://github.com/get-convex/convex-helpers) - Helpers to extend the Convex SDK
 - [AI SDK](https://ai-sdk.dev) - Typescript AI toolkit to build AI applications
-- [Convex Auth](https://labs.convex.dev/auth) - Convex auth library
+- [Better Auth](https://convex-better-auth.netlify.app) - Better Auth Convex integration
 - [TailwindCSS v4](https://tailwindcss.com) - Inline CSS framework
 - [shadcn/ui](https://ui.shadcn.com) - Modern component library built on Radix UI
 - [resumable-stream](https://github.com/vercel/resumable-stream) - Resumable streams for AI SDK
@@ -52,11 +52,14 @@ cp .env.example .env.local
 bun run dev:convex
 ```
 
-4. Setup Convex Auth:
+4. Setup env vars in Convex:
 
 ```bash
-bunx @convex-dev/auth
-# Follow the Next.js auth guide in https://labs.convex.dev/auth/setup to setup Convex Auth with Google oauth
+bunx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+bunx convex env set SITE_URL http://localhost:3000
+bunx convex env set GOOGLE_CLIENT_ID your_google_client_id
+bunx convex env set GOOGLE_CLIENT_SEVRET your_google_client_secret
+# Following https://convex-better-auth.netlify.app/framework-guides/next
 ```
 
 5. Start the Next.js development server:

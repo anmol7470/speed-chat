@@ -4,7 +4,7 @@ import { UIMessageWithMetadata } from '../lib/types'
 import { internal } from './_generated/api'
 import { Id } from './_generated/dataModel'
 import { internalMutation } from './_generated/server'
-import { authedMutation } from './user'
+import { authedMutation } from './utils'
 
 export const deleteMessages = authedMutation({
   args: {

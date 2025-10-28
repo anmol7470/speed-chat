@@ -8,10 +8,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { BaseUserMessage } from '@/components/user-message'
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import { models } from '@/lib/ai/models'
 import { getErrorMessage } from '@/lib/error'
-import { models } from '@/lib/models'
 import type { UIMessageWithMetadata } from '@/lib/types'
-import { type Preloaded, useMutation, usePreloadedQuery } from 'convex/react'
+import { type Preloaded, useConvexAuth, useMutation, usePreloadedQuery } from 'convex/react'
 import { Check, Copy, GitFork, Info, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -19,7 +19,6 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { Header } from './header'
 import { nanoid } from './providers/chat-config-provider'
-import { useUser } from './providers/user-provider'
 
 type SharedChatContainerProps = {
   preloadedChat: Preloaded<typeof api.chat.getSharedChat>
@@ -27,7 +26,7 @@ type SharedChatContainerProps = {
 
 export function SharedChatContainer({ preloadedChat }: SharedChatContainerProps) {
   const router = useRouter()
-  const { user } = useUser()
+  const { isAuthenticated } = useConvexAuth()
   const { chatData, messages } = usePreloadedQuery(preloadedChat)
   const forkChat = useMutation(api.chatActions.forkChat)
   const [isForking, setIsForking] = useState(false)
@@ -38,7 +37,7 @@ export function SharedChatContainer({ preloadedChat }: SharedChatContainerProps)
   }, [chatData])
 
   const handleFork = async () => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast.error('Please sign in to fork this chat')
       return
     }

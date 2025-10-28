@@ -1,7 +1,6 @@
 import { AppSidebar } from '@/components/app-sidebar'
 import { Providers } from '@/components/providers'
 import { SidebarInset } from '@/components/ui/sidebar'
-import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
@@ -28,16 +27,14 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ConvexAuthNextjsServerProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Providers>
-            <AppSidebar />
-            <SidebarInset>{children}</SidebarInset>
-            <Toaster position="top-center" reverseOrder={false} />
-          </Providers>
-        </body>
-      </html>
-    </ConvexAuthNextjsServerProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>
+          <AppSidebar />
+          <SidebarInset>{children}</SidebarInset>
+          <Toaster position="top-center" reverseOrder={false} />
+        </Providers>
+      </body>
+    </html>
   )
 }
