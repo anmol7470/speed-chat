@@ -186,6 +186,24 @@ export const updateChatActiveStreamId = authedMutation({
   },
 })
 
+export const clearChatActiveStreamId = authedMutation({
+  args: {
+    chatId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const chat = await ctx.db
+      .query('chats')
+      .withIndex('by_chat_id_and_user_id', (q) => q.eq('id', args.chatId).eq('userId', ctx.userId))
+      .first()
+
+    if (!chat) {
+      throw new ConvexError('Chat not found')
+    }
+
+    await ctx.db.patch(chat._id, { activeStreamId: undefined })
+  },
+})
+
 export const toggleChatShareStatus = authedMutation({
   args: {
     chatId: v.string(),

@@ -36,6 +36,7 @@ type ChatContextType = {
     body: { chatId: string; model: Model | undefined; isNewChat: boolean }
     headers: { 'x-api-key': string }
   }
+  stop: UseChatHelpers<UIMessageWithMetadata>['stop']
 }
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -63,7 +64,7 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
     }
   }, [isError, router, paramsChatId])
 
-  const { messages, sendMessage, status, setMessages, regenerate, error, clearError, resumeStream } =
+  const { messages, sendMessage, status, setMessages, regenerate, error, clearError, resumeStream, stop } =
     useChat<UIMessageWithMetadata>({
       id: chatId,
       generateId: createIdGenerator({
@@ -222,6 +223,7 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
         error,
         clearError,
         buildBodyAndHeaders,
+        stop,
       }}
     >
       {children}

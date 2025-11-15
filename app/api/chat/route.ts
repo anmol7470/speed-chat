@@ -22,12 +22,9 @@ export async function POST(request: Request) {
 
   const body = await request.json()
 
-  console.log('Request body model:', JSON.stringify(body.model, null, 2))
-
   const parsedBody = ChatRequestSchema.safeParse(body)
 
   if (!parsedBody.success) {
-    console.log('Zod parse error:', parsedBody.error)
     return new Response(JSON.stringify({ error: 'Invalid request body' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
@@ -35,9 +32,6 @@ export async function POST(request: Request) {
   }
 
   const { messages, chatId, model, isNewChat } = parsedBody.data
-
-  console.log('Parsed model:', JSON.stringify(model, null, 2))
-  console.log('isReasoningModel:', model.isReasoningModel)
 
   const headers = request.headers
   const apiKey = headers.get('x-api-key')
@@ -117,6 +111,19 @@ export async function POST(request: Request) {
         web_search: webSearchTool,
       },
       toolChoice: 'auto',
+      abortSignal: request.signal,
+      onAbort: async () => {
+        // Clear the active stream id to prevent the stream from being resumed
+        await fetchMutation(
+          api.chat.clearChatActiveStreamId,
+          {
+            chatId,
+          },
+          {
+            token,
+          }
+        )
+      },
     })
 
     return response.toUIMessageStreamResponse({
