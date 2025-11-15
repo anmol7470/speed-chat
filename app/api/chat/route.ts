@@ -111,19 +111,6 @@ export async function POST(request: Request) {
         web_search: webSearchTool,
       },
       toolChoice: 'auto',
-      abortSignal: request.signal,
-      onAbort: async () => {
-        // Clear the active stream id to prevent the stream from being resumed
-        await fetchMutation(
-          api.chat.clearChatActiveStreamId,
-          {
-            chatId,
-          },
-          {
-            token,
-          }
-        )
-      },
     })
 
     return response.toUIMessageStreamResponse({

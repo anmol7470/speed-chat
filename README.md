@@ -67,3 +67,7 @@ bunx convex env set GOOGLE_CLIENT_SEVRET your_google_client_secret
 ```bash
 bun run dev # app will be available at http://localhost:3000
 ```
+
+TODO:
+
+- [ ] Add a way to stop the stream. Currently its [not compatible](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-resume-streams) with AI SDK.

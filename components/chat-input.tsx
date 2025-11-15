@@ -4,7 +4,7 @@ import { useAttachments } from '@/hooks/use-attachments'
 import { models } from '@/lib/ai/models'
 import { cn } from '@/lib/utils'
 import { useConvexAuth } from 'convex/react'
-import { ArrowUp, ChevronDown, Paperclip, Square } from 'lucide-react'
+import { ArrowUp, ChevronDown, Paperclip } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { MemoizedFilePreview } from './file-preview'
@@ -36,7 +36,6 @@ export function ChatInput({
     setFilesToSend,
     filesToUpload,
     setFilesToUpload,
-    stop,
   } = useChatContext()
   const { config, updateConfig, isLoading } = useChatConfig()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -150,16 +149,11 @@ export function ChatInput({
           )}
           <Button
             className="rounded-full"
-            disabled={status === 'ready' && !input.trim()}
+            disabled={(status === 'ready' && !input.trim()) || isStreaming}
             size="icon-sm"
             type="submit"
-            onClick={() => {
-              if (isStreaming) {
-                stop()
-              }
-            }}
           >
-            {isStreaming ? <Square className="size-5" /> : <ArrowUp className="size-5" />}
+            <ArrowUp className="size-5" />
             <span className="sr-only">Send message</span>
           </Button>
         </div>
