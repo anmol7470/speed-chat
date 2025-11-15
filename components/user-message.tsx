@@ -18,7 +18,7 @@ export function BaseUserMessage({ message }: { message: UIMessageWithMetadata })
   return (
     <div
       className={cn(
-        'bg-muted ml-auto rounded-xl p-2 px-3 break-words whitespace-pre-wrap',
+        'bg-muted ml-auto rounded-xl p-2 px-3 wrap-break-word whitespace-pre-wrap',
         hasFiles && 'flex flex-col gap-2'
       )}
     >
@@ -152,7 +152,7 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
   return (
     <div className={cn('group ml-auto flex flex-col', isEditing ? 'w-full' : 'w-fit max-w-[85%]')}>
       {isEditing ? (
-        <div className="bg-muted w-full rounded-xl p-2 px-3 break-words whitespace-pre-wrap">
+        <div className="bg-muted w-full rounded-xl p-2 px-3 wrap-break-word whitespace-pre-wrap">
           {displayParts.map((part, index) => {
             switch (part.type) {
               case 'text':
@@ -171,7 +171,7 @@ export function UserMessage({ message }: { message: UIMessageWithMetadata }) {
                           handleSend()
                         }
                       }}
-                      className="min-h-[60px] w-full resize-none border-0 !bg-transparent px-2 shadow-none outline-none focus-visible:ring-0"
+                      className="min-h-[60px] w-full resize-none border-0 bg-transparent! px-2 shadow-none outline-none focus-visible:ring-0"
                       rows={3}
                     />
                     <div className="flex justify-end gap-2">

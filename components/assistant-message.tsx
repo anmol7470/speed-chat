@@ -38,7 +38,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
   const [isReasoningOpen, setIsReasoningOpen] = useState(false)
 
   return (
-    <div className="space-y-2 break-words whitespace-pre-wrap">
+    <div className="space-y-2 wrap-break-word whitespace-pre-wrap">
       {message.parts.map((part) => {
         const id = `${message.id}-${part.type}`
         switch (part.type) {
@@ -112,7 +112,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                                 <div className="flex items-start justify-between gap-2">
                                   <h4 className="text-foreground line-clamp-2 text-sm font-medium">{result.title}</h4>
                                   {result.publishedDate && (
-                                    <span className="text-muted-foreground flex-shrink-0 text-xs">
+                                    <span className="text-muted-foreground shrink-0 text-xs">
                                       {new Date(result.publishedDate).toLocaleDateString()}
                                     </span>
                                   )}
@@ -120,7 +120,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                                 <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{result.snippet}</p>
                                 <div className="text-muted-foreground mt-2 flex items-center gap-1 text-xs">
                                   <span className="truncate text-blue-500 dark:text-blue-400">{result.url}</span>
-                                  <ExternalLink className="size-3 flex-shrink-0" />
+                                  <ExternalLink className="size-3 shrink-0" />
                                 </div>
                               </div>
                             </div>

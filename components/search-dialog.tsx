@@ -123,7 +123,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                     onSelect={() => handleSelectResult(result)}
                     value={`${result.type}-${result.type === 'chat' ? result.title : result.text_part}`}
                   >
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <MessageSquare className="text-muted-foreground h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">

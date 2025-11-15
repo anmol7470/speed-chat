@@ -15,7 +15,7 @@ import type { Chat } from '@/convex/chat'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { getErrorMessage } from '@/lib/error'
 import { useMutation } from 'convex/react'
-import { GitBranch, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Share, Trash2 } from 'lucide-react'
+import { GitBranch, Link2, Link2Off, Loader2, MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
@@ -65,7 +65,7 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
       <SidebarMenuButton asChild={!(isRenamingChat && chat.id === renamingChatId)} isActive={currentChatId === chat.id}>
         {isRenamingChat && chat.id === renamingChatId ? (
           <Input
-            className="w-full border-none !bg-transparent px-0 shadow-none focus-visible:ring-0"
+            className="w-full border-none bg-transparent! px-0 shadow-none focus-visible:ring-0"
             onBlur={clearInput}
             onChange={(e) => setNewChatTitle(e.target.value)}
             onKeyDown={async (e) => {
@@ -106,14 +106,14 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
         )}
       </SidebarMenuButton>
       {chat.activeStreamId ? (
-        <SidebarMenuAction className="!top-2">
+        <SidebarMenuAction className="top-2!">
           <Loader2 className="size-4 animate-spin" />
           <span className="sr-only">Loading</span>
         </SidebarMenuAction>
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuAction className="!top-2 cursor-pointer" showOnHover>
+            <SidebarMenuAction className="top-2! cursor-pointer" showOnHover>
               <MoreHorizontal />
               <span className="sr-only">Chat Actions</span>
             </SidebarMenuAction>
@@ -160,8 +160,8 @@ export function SidebarChatItem({ chat }: { chat: Chat }) {
               <span>Rename</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
-              <Share />
-              <span>Share</span>
+              {chat.isShared ? <Link2Off /> : <Link2 />}
+              <span>{chat.isShared ? 'Unshare' : 'Share'}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

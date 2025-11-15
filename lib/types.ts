@@ -1,19 +1,21 @@
 import type { UIMessage } from 'ai'
 import * as z from 'zod'
 
+// Reasoning version of the model for the model prefixed with 'reasoning-' to distinguish from the non-reasoning version
 export type ModelId =
   | 'google/gemini-2.5-flash'
+  | 'reasoning-google/gemini-2.5-flash'
   | 'google/gemini-2.5-pro'
   | 'anthropic/claude-sonnet-4.5'
-  | 'openai/gpt-5'
-  | 'x-ai/grok-4-fast'
+  | 'reasoning-anthropic/claude-sonnet-4.5'
+  | 'openai/gpt-5.1'
+  | 'moonshotai/kimi-k2-thinking'
 
 export type Model = {
   id: ModelId
   name: string
   default: boolean
-  supportsReasoning: boolean
-  reasoningConfigurable: boolean
+  isReasoningModel: boolean
 }
 
 export const DraftMessageEntrySchema = z.object({
@@ -42,8 +44,6 @@ export const ChatRequestSchema = z.object({
   chatId: z.string(),
   model: z.custom<Model>(),
   isNewChat: z.boolean(),
-  useWebSearch: z.boolean(),
-  useReasoning: z.boolean(),
 })
 
 export type ChatRequest = z.infer<typeof ChatRequestSchema>

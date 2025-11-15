@@ -4,16 +4,15 @@ import { useAttachments } from '@/hooks/use-attachments'
 import { models } from '@/lib/ai/models'
 import { cn } from '@/lib/utils'
 import { useConvexAuth } from 'convex/react'
-import { ArrowUp, Brain, ChevronDown, Globe, Loader2, Paperclip } from 'lucide-react'
+import { ArrowUp, ChevronDown, Loader2, Paperclip } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { MemoizedFilePreview } from './file-preview'
 import { useChatConfig } from './providers/chat-config-provider'
 import { useChatContext } from './providers/chat-provider'
-import { Button, buttonVariants } from './ui/button'
+import { Button } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Textarea } from './ui/textarea'
-import { Toggle } from './ui/toggle'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export function ChatInput({
@@ -37,10 +36,6 @@ export function ChatInput({
     setFilesToSend,
     filesToUpload,
     setFilesToUpload,
-    useWebSearch,
-    setUseWebSearch,
-    useReasoning,
-    setUseReasoning,
   } = useChatContext()
   const { config, updateConfig, isLoading } = useChatConfig()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -63,7 +58,7 @@ export function ChatInput({
   return (
     <form
       className={cn(
-        'border-border bg-input/30 mx-auto w-full max-w-3xl rounded-xl border p-2 px-4 shadow-xs transition-colors sm:px-2',
+        'border-border bg-muted/80 dark:bg-input/20 mx-auto w-full max-w-3xl rounded-xl border p-2 px-2 shadow-xs transition-colors',
         isDragActive && 'border-primary'
       )}
       onSubmit={(e) => {
@@ -82,7 +77,7 @@ export function ChatInput({
       )}
       <Textarea
         autoFocus
-        className="placeholder:text-muted-foreground max-h-[120px] min-h-[60px] w-full resize-none border-0 !bg-transparent px-1 !text-[15px] shadow-none focus-visible:ring-0"
+        className="placeholder:text-muted-foreground max-h-[120px] min-h-[60px] w-full resize-none border-0 bg-transparent! px-1 text-[15px]! shadow-none focus-visible:ring-0"
         onChange={handleInputChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
@@ -127,61 +122,17 @@ export function ChatInput({
             ref={fileInputRef}
             type="file"
           />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Toggle
-                  pressed={useWebSearch}
-                  onPressedChange={(pressed) => setUseWebSearch(pressed)}
-                  aria-label="Search"
-                  className={cn(
-                    buttonVariants({ variant: 'outline', size: 'sm' }),
-                    '[&[data-state=on]]:bg-primary/5 hover:[&[data-state=on]]:bg-primary/5 [&[data-state=on]]:text-foreground dark:[&[data-state=on]]:bg-input dark:hover:[&[data-state=on]]:bg-input rounded-full'
-                  )}
-                >
-                  <Globe className="size-4.5" />
-                  <span className="hidden md:block">Search</span>
-                </Toggle>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{useWebSearch ? 'Disable' : 'Enable'} web search</p>
-            </TooltipContent>
-          </Tooltip>
-          {!isLoading && currentModel?.reasoningConfigurable && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Toggle
-                    pressed={useReasoning}
-                    onPressedChange={(pressed) => setUseReasoning(pressed)}
-                    aria-label="Reasoning"
-                    className={cn(
-                      buttonVariants({ variant: 'outline', size: 'sm' }),
-                      '[&[data-state=on]]:bg-primary/5 hover:[&[data-state=on]]:bg-primary/5 [&[data-state=on]]:text-foreground dark:[&[data-state=on]]:bg-input dark:hover:[&[data-state=on]]:bg-input rounded-full'
-                    )}
-                  >
-                    <Brain className="size-4.5" />
-                    <span className="hidden md:block">Reasoning</span>
-                  </Toggle>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{useReasoning ? 'Disable' : 'Enable'} reasoning</p>
-              </TooltipContent>
-            </Tooltip>
-          )}
         </div>
         <div className="flex items-center gap-1">
           {!isLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="rounded-full" suppressHydrationWarning>
+                <Button variant="ghost" size="sm" className="font-normal" suppressHydrationWarning>
                   {currentModel?.name}
                   <ChevronDown className="text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 rounded-xl p-2" align="end">
+              <DropdownMenuContent className="w-fit rounded-xl p-2" align="end">
                 <div className="flex flex-col gap-1">
                   {models.map((m) => (
                     <DropdownMenuItem

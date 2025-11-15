@@ -85,7 +85,7 @@ function ChatContainer({ paramsChatId }: { paramsChatId: string }) {
             {isLoadingMessages ? null : <Messages />}
           </StickToBottom.Content>
           <ScrollToBottom />
-          <div className="flex-shrink-0 px-2 pb-2">
+          <div className="shrink-0 px-2 pb-2">
             <ChatInput isDragActive={isDragActive} droppedFiles={droppedFiles} setDroppedFiles={setDroppedFiles} />
           </div>
         </StickToBottom>
@@ -104,7 +104,7 @@ function ScrollToBottom() {
           size="icon-sm"
           variant="outline"
           onClick={() => scrollToBottom()}
-          className="!bg-background rounded-full shadow-md"
+          className="bg-background! rounded-full shadow-md"
         >
           <ArrowDown className="size-4" />
         </Button>

@@ -36,10 +36,6 @@ type ChatContextType = {
     body: { chatId: string; model: Model | undefined; isNewChat: boolean }
     headers: { 'x-api-key': string }
   }
-  useWebSearch: boolean
-  setUseWebSearch: (useWebSearch: boolean) => void
-  useReasoning: boolean
-  setUseReasoning: (useReasoning: boolean) => void
 }
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -53,8 +49,6 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
   const [input, setInput] = useState('')
   const [filesToSend, setFilesToSend] = useState<FileUIPart[]>([])
   const [filesToUpload, setFilesToUpload] = useState<File[]>([])
-  const [useWebSearch, setUseWebSearch] = useState(false)
-  const [useReasoning, setUseReasoning] = useState(false)
 
   const {
     data: initialMessages,
@@ -136,15 +130,13 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
       body: {
         chatId,
         model: models.find((m) => m.id === config.selectedModelId)!,
-        useWebSearch,
-        useReasoning,
         isNewChat: isFirstMessage,
       } satisfies Omit<ChatRequest, 'messages'>,
       headers: {
         'x-api-key': config.apiKey,
       },
     }
-  }, [chatId, config, messages, useWebSearch, useReasoning])
+  }, [chatId, config, messages])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -230,10 +222,6 @@ export const ChatProvider = ({ children, paramsChatId }: { children: React.React
         error,
         clearError,
         buildBodyAndHeaders,
-        useWebSearch,
-        setUseWebSearch,
-        useReasoning,
-        setUseReasoning,
       }}
     >
       {children}

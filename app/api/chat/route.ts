@@ -21,16 +21,23 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
+
+  console.log('Request body model:', JSON.stringify(body.model, null, 2))
+
   const parsedBody = ChatRequestSchema.safeParse(body)
 
   if (!parsedBody.success) {
+    console.log('Zod parse error:', parsedBody.error)
     return new Response(JSON.stringify({ error: 'Invalid request body' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
 
-  const { messages, chatId, model, isNewChat, useWebSearch, useReasoning } = parsedBody.data
+  const { messages, chatId, model, isNewChat } = parsedBody.data
+
+  console.log('Parsed model:', JSON.stringify(model, null, 2))
+  console.log('isReasoningModel:', model.isReasoningModel)
 
   const headers = request.headers
   const apiKey = headers.get('x-api-key')
@@ -88,22 +95,28 @@ export async function POST(request: Request) {
       console.error('Failed to upsert user message:', getErrorMessage(error))
     })
 
+    const modelId = model.id.replace('reasoning-', '')
+    const reasoningConfig = {
+      reasoning: {
+        effort: 'medium',
+        enabled: model.isReasoningModel,
+      },
+    }
+
     const response = streamText({
-      model: openrouter(model.id, {
-        extraBody: {
-          include_reasoning: model.supportsReasoning && model.reasoningConfigurable ? useReasoning : true,
-        },
+      model: openrouter(modelId, {
+        extraBody: reasoningConfig,
       }),
       system: chatSystemPrompt(model.name),
       messages: convertToModelMessages(messages),
       experimental_transform: smoothStream({
         chunking: 'word',
       }),
-      stopWhen: stepCountIs(10),
+      stopWhen: stepCountIs(5),
       tools: {
         web_search: webSearchTool,
       },
-      toolChoice: useWebSearch ? 'required' : 'auto', // force web_search tool when web search is enabled
+      toolChoice: 'auto',
     })
 
     return response.toUIMessageStreamResponse({
