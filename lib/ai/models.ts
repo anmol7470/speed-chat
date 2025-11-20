@@ -14,8 +14,8 @@ export const models: Model[] = [
     default: false,
   },
   {
-    id: 'google/gemini-2.5-pro',
-    name: 'Gemini 2.5 Pro',
+    id: 'google/gemini-3-pro-preview',
+    name: 'Gemini 3 Pro Preview',
     isReasoningModel: true,
     default: false,
   },
@@ -38,8 +38,8 @@ export const models: Model[] = [
     default: false,
   },
   {
-    id: 'moonshotai/kimi-k2-thinking',
-    name: 'Kimi K2 Thinking',
+    id: 'x-ai/grok-4.1-fast',
+    name: 'Grok 4.1 Fast',
     isReasoningModel: true,
     default: false,
   },

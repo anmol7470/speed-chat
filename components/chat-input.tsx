@@ -58,7 +58,7 @@ export function ChatInput({
   return (
     <form
       className={cn(
-        'border-border bg-muted/80 dark:bg-input/20 mx-auto w-full max-w-3xl rounded-xl border p-2 px-2 shadow-xs transition-colors',
+        'border-border bg-muted/30 dark:bg-input/20 mx-auto w-full max-w-3xl rounded-xl border p-2 px-2 shadow-xs transition-colors',
         isDragActive && 'border-primary'
       )}
       onSubmit={(e) => {

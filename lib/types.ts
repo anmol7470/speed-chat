@@ -5,11 +5,11 @@ import * as z from 'zod'
 export type ModelId =
   | 'google/gemini-2.5-flash'
   | 'reasoning-google/gemini-2.5-flash'
-  | 'google/gemini-2.5-pro'
+  | 'google/gemini-3-pro-preview'
   | 'anthropic/claude-sonnet-4.5'
   | 'reasoning-anthropic/claude-sonnet-4.5'
   | 'openai/gpt-5.1'
-  | 'moonshotai/kimi-k2-thinking'
+  | 'x-ai/grok-4.1-fast'
 
 export type Model = {
   id: ModelId

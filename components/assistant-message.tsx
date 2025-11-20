@@ -1,9 +1,9 @@
 import { api } from '@/convex/_generated/api'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { models } from '@/lib/ai/models'
-import { WebSearchToolInput, WebSearchToolOutput } from '@/lib/ai/web-search-tool'
 import { getErrorMessage } from '@/lib/error'
 import { UIMessageWithMetadata } from '@/lib/types'
+import type { ExaSearchResult } from '@exalabs/ai-sdk'
 import { useMutation } from 'convex/react'
 import {
   AlertCircle,
@@ -41,6 +41,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
     <div className="space-y-2 wrap-break-word whitespace-pre-wrap">
       {message.parts.map((part) => {
         const id = `${message.id}-${part.type}`
+
         switch (part.type) {
           case 'reasoning':
             return (
@@ -65,9 +66,9 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                 {part.text}
               </Streamdown>
             )
-          case 'tool-web_search':
-            const webSearchToolInput = part.input as WebSearchToolInput
-            const webSearchToolOutput = part.output as WebSearchToolOutput
+          case 'tool-webSearch':
+            const webSearchToolOutput = (part.output as { results: ExaSearchResult[] })?.results || []
+            const webSearchQuery = (part.input as { query: string })?.query || ''
 
             switch (part.state) {
               case 'input-available':
@@ -77,7 +78,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                     className="border-border/50 bg-muted/30 text-muted-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
                   >
                     <Loader2 className="size-4 shrink-0 animate-spin text-blue-500" />
-                    <span>Searching the web for &ldquo;{webSearchToolInput.query}&rdquo;</span>
+                    <span>Searching the web for &ldquo;{webSearchQuery}&rdquo;</span>
                   </div>
                 )
               case 'output-available':
@@ -89,9 +90,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                           <Search className="text-primary size-4" />
                           <span>
                             Searched for{' '}
-                            <span className="text-foreground font-medium">
-                              &ldquo;{webSearchToolInput.query}&rdquo;
-                            </span>
+                            <span className="text-foreground font-medium">&ldquo;{webSearchQuery}&rdquo;</span>
                           </span>
                         </div>
                         <ChevronDown
@@ -117,7 +116,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{result.snippet}</p>
+                                <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{result.text}</p>
                                 <div className="text-muted-foreground mt-2 flex items-center gap-1 text-xs">
                                   <span className="truncate text-blue-500 dark:text-blue-400">{result.url}</span>
                                   <ExternalLink className="size-3 shrink-0" />
@@ -137,7 +136,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                     className="border-border/50 bg-muted/30 text-muted-foreground flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
                   >
                     <AlertCircle className="size-4 shrink-0 text-red-500" />
-                    <span>Error searching the web for &ldquo;{webSearchToolInput.query}&rdquo;</span>
+                    <span>Error searching the web for &ldquo;{webSearchQuery}&rdquo;</span>
                   </div>
                 )
             }

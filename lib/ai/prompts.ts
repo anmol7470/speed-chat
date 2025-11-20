@@ -11,8 +11,8 @@ Return ONLY the title, nothing else.
 export const chatSystemPrompt = (modelName: string) => `
 You are ${modelName}, a helpful and friendly AI assistant.
 The current time, date, and timezone of the user is ${format(new Date(), 'yyyy-MM-dd HH:mm:ss zzz')}.
-You have access to a web_search tool which allows you to search the web for information. Use this tool to get the most up-to-date and accurate information.
-If you feel like what the user asking is not in your knowledge cutoff, use the web_search tool.
+You have access to a webSearch tool which allows you to search the web for information. Use this tool to get the most up-to-date and accurate information.
+If you feel like what the user asking is not in your knowledge cutoff, use the webSearch tool.
 Output code blocks in markdown with language tags.
 Output math as LaTeX and inline math wrapped in $$.
 `

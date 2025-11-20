@@ -18,7 +18,8 @@ import { getErrorMessage } from '@/lib/error'
 import { useQueryWithStatus } from '@/lib/utils'
 import { VariantProps } from 'class-variance-authority'
 import { useMutation } from 'convex/react'
-import { Key, LogIn, LogOut, MessageSquare, PenBox, Search, Trash } from 'lucide-react'
+import { Key, LogIn, LogOut, MessageSquare, Monitor, Moon, PenBox, Search, Sun, Trash, UserX } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -33,7 +34,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 import { Kbd, KbdGroup } from './ui/kbd'
@@ -43,8 +50,11 @@ export function AppSidebar() {
   const router = useRouter()
   const { chatId } = useChatConfig()
   const { setOpenSearchDialog, setOpenApiKeyDialog } = useDialogs()
+  const { theme, setTheme } = useTheme()
   const [openDeleteAllChatsDialog, setOpenDeleteAllChatsDialog] = useState(false)
   const [isDeleteAllChatsLoading, setIsDeleteAllChatsLoading] = useState(false)
+  const [openDeleteAccountDialog, setOpenDeleteAccountDialog] = useState(false)
+  const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false)
 
   const {
     data: chats,
@@ -55,6 +65,7 @@ export function AppSidebar() {
   } = useQueryWithStatus(api.chat.getAllChats, session ? {} : 'skip')
 
   const deleteAllChats = useMutation(api.delete.deleteAllChats)
+  const deleteAccount = useMutation(api.delete.deleteAccount)
 
   useEffect(() => {
     if (isError) {
@@ -82,7 +93,7 @@ export function AppSidebar() {
 
   return (
     <>
-      <Sidebar>
+      <Sidebar variant="inset">
         <SidebarHeader className="flex flex-col items-center pt-4">
           <Link className="flex items-center gap-2" href="/">
             <div className="flex size-8 items-center justify-center rounded-lg bg-blue-300">
@@ -174,6 +185,36 @@ export function AppSidebar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm leading-none font-medium">{session.user.name}</p>
+                    <p className="text-muted-foreground text-xs leading-none">{session.user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Sun className="absolute size-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                    <Moon className="absolute size-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                    <span className="ml-6">Toggle theme</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+                      <DropdownMenuRadioItem value="light">
+                        <Sun />
+                        Light
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="dark">
+                        <Moon />
+                        Dark
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="system">
+                        <Monitor />
+                        System
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
                 <DropdownMenuItem onClick={() => setOpenApiKeyDialog(true)}>
                   <Key />
                   Configure API Key
@@ -199,6 +240,10 @@ export function AppSidebar() {
                 <DropdownMenuItem variant="destructive" onClick={() => setOpenDeleteAllChatsDialog(true)}>
                   <Trash />
                   Delete all chats
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onClick={() => setOpenDeleteAccountDialog(true)}>
+                  <UserX />
+                  Delete account
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -230,6 +275,30 @@ export function AppSidebar() {
         description="Are you sure you want to delete all your chats? This action cannot be undone."
         confirmText="Delete All Chats"
         isLoading={isDeleteAllChatsLoading}
+      />
+
+      <ConfirmationDialog
+        open={openDeleteAccountDialog}
+        onOpenChange={(open) => {
+          setOpenDeleteAccountDialog(open)
+        }}
+        onConfirm={async () => {
+          try {
+            setIsDeleteAccountLoading(true)
+            await deleteAccount()
+            toast.success('Account deleted successfully')
+            setOpenDeleteAccountDialog(false)
+            router.refresh()
+          } catch (error) {
+            toast.error(getErrorMessage(error))
+          } finally {
+            setIsDeleteAccountLoading(false)
+          }
+        }}
+        title="Delete Account"
+        description="Are you sure you want to delete your account? This will permanently delete all your chats and data. This action cannot be undone."
+        confirmText="Delete Account"
+        isLoading={isDeleteAccountLoading}
       />
     </>
   )

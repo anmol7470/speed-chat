@@ -4,6 +4,7 @@ import { UIMessageWithMetadata } from '../lib/types'
 import { internal } from './_generated/api'
 import { Id } from './_generated/dataModel'
 import { internalMutation } from './_generated/server'
+import { authComponent, createAuth } from './auth'
 import { authedMutation } from './utils'
 
 export const deleteMessages = authedMutation({
@@ -104,5 +105,36 @@ export const deleteAllChats = authedMutation({
 
       await ctx.db.delete(chat._id)
     }
+  },
+})
+
+export const deleteAccount = authedMutation({
+  handler: async (ctx) => {
+    const { auth, headers } = await authComponent.getAuth(createAuth, ctx)
+
+    // Delete all user data
+    const userChats = await getManyFrom(ctx.db, 'chats', 'by_user_id', ctx.userId, 'userId')
+
+    for (const chat of userChats) {
+      const messages = await getManyFrom(ctx.db, 'messages', 'by_chat_id', chat._id, 'chatId')
+
+      for (const message of messages) {
+        // Delete attachments if message has any
+        if (message.parts && message.parts.length > 0) {
+          await ctx.runMutation(internal.delete.deleteAttachmentsFromMessage, {
+            messageParts: message.parts,
+          })
+        }
+
+        await ctx.db.delete(message._id)
+      }
+
+      await ctx.db.delete(chat._id)
+    }
+
+    await auth.api.deleteUser({
+      body: {},
+      headers,
+    })
   },
 })

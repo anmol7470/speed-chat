@@ -1,10 +1,10 @@
 import { api } from '@/convex/_generated/api'
 import { chatSystemPrompt } from '@/lib/ai/prompts'
-import { webSearchTool } from '@/lib/ai/web-search-tool'
 import { getToken } from '@/lib/auth/token'
 import { getErrorMessage } from '@/lib/error'
 import { getStreamContext } from '@/lib/stream-context'
 import { ChatRequestSchema, MessageMetadata } from '@/lib/types'
+import { webSearch } from '@exalabs/ai-sdk'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { convertToModelMessages, createIdGenerator, smoothStream, stepCountIs, streamText } from 'ai'
 import { fetchAction, fetchMutation } from 'convex/nextjs'
@@ -108,9 +108,8 @@ export async function POST(request: Request) {
       }),
       stopWhen: stepCountIs(5),
       tools: {
-        web_search: webSearchTool,
+        webSearch: webSearch(),
       },
-      toolChoice: 'auto',
     })
 
     return response.toUIMessageStreamResponse({
