@@ -34,25 +34,31 @@ type AssistantMessageProps = {
 }
 
 export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageProps) {
-  const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(false)
-  const [isReasoningOpen, setIsReasoningOpen] = useState(false)
+  const [openItems, setOpenItems] = useState<Record<string, boolean>>({})
+
+  const toggleItem = (id: string) => {
+    setOpenItems((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }))
+  }
 
   return (
     <div className="space-y-2 wrap-break-word whitespace-pre-wrap">
-      {message.parts.map((part) => {
-        const id = `${message.id}-${part.type}`
+      {message.parts.map((part, index) => {
+        const id = `${message.id}-${part.type}-${index}`
 
         switch (part.type) {
           case 'reasoning':
             return (
               <div key={id} className="mb-6 w-full space-y-3">
-                <Collapsible open={isReasoningOpen} onOpenChange={setIsReasoningOpen}>
+                <Collapsible open={openItems[id]} onOpenChange={() => toggleItem(id)}>
                   <CollapsibleTrigger className="text-muted-foreground flex w-full items-center justify-between text-sm font-normal hover:bg-transparent">
                     <div className="flex items-center gap-2">
                       <Brain className="text-primary size-4" />
                       <span>{part.state === 'streaming' ? 'Reasoning' : 'View reasoning'}</span>
                     </div>
-                    <ChevronDown className={`size-4 transition-transform ${isReasoningOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`size-4 transition-transform ${openItems[id] ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="text-muted-foreground w-full space-y-2 pt-4 text-sm">
                     <Streamdown isAnimating={isAnimating}>{part.text}</Streamdown>
@@ -84,7 +90,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
               case 'output-available':
                 return (
                   <div key={id} className="mb-6 w-full space-y-3">
-                    <Collapsible open={isSearchResultsOpen} onOpenChange={setIsSearchResultsOpen}>
+                    <Collapsible open={openItems[id]} onOpenChange={() => toggleItem(id)}>
                       <CollapsibleTrigger className="text-muted-foreground flex w-full items-center justify-between text-sm font-normal hover:bg-transparent">
                         <div className="flex items-center gap-2">
                           <Search className="text-primary size-4" />
@@ -93,9 +99,7 @@ export function BaseAssistantMessage({ message, isAnimating }: AssistantMessageP
                             <span className="text-foreground font-medium">&ldquo;{webSearchQuery}&rdquo;</span>
                           </span>
                         </div>
-                        <ChevronDown
-                          className={`size-4 transition-transform ${isSearchResultsOpen ? 'rotate-180' : ''}`}
-                        />
+                        <ChevronDown className={`size-4 transition-transform ${openItems[id] ? 'rotate-180' : ''}`} />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="w-full space-y-2 pt-2">
                         {webSearchToolOutput.map((result, index) => (

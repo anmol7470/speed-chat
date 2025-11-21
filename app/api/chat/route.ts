@@ -113,6 +113,7 @@ export async function POST(request: Request) {
     })
 
     return response.toUIMessageStreamResponse({
+      originalMessages: messages,
       generateMessageId: () =>
         createIdGenerator({
           prefix: 'assistant',

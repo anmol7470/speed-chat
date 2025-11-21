@@ -94,7 +94,7 @@ export function AppSidebar() {
   return (
     <>
       <Sidebar variant="inset">
-        <SidebarHeader className="flex flex-col items-center pt-4">
+        <SidebarHeader className="flex flex-col items-center">
           <Link className="flex items-center gap-2" href="/">
             <div className="flex size-8 items-center justify-center rounded-lg bg-blue-300">
               <MessageSquare className="size-4.5 text-white" />
@@ -173,7 +173,10 @@ export function AppSidebar() {
           ) : session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="flex h-12 w-full items-center justify-start gap-3 rounded-lg px-2" variant="ghost">
+                <Button
+                  className="flex h-12 w-full items-center justify-start gap-3 rounded-lg px-2 pb-0"
+                  variant="ghost"
+                >
                   <Image
                     src={session.user.image ?? ''}
                     alt={session.user.name ?? ''}
@@ -288,6 +291,7 @@ export function AppSidebar() {
             await deleteAccount()
             toast.success('Account deleted successfully')
             setOpenDeleteAccountDialog(false)
+            router.push('/')
             router.refresh()
           } catch (error) {
             toast.error(getErrorMessage(error))
